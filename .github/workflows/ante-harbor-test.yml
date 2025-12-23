@@ -1,0 +1,157 @@
+name: Harbor Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'GitHub release tag to test (e.g., main, v0.1.0)'
+        required: false
+        default: 'main'
+      harbor_args:
+        description: 'Arguments to pass to harbor'
+        required: true
+        default: '--dataset terminal-bench@2.0 --n-attempts 5'
+      model_name:
+        description: 'Model name to use'
+        required: false
+        default: 'gemini-3-pro-preview'
+      provider:
+        description: 'Model provider (anthropic, openai, etc.)'
+        required: false
+        default: 'vertex-gemini'
+      model_base_url:
+        description: 'Base URL for model API'
+        required: false
+        default: 'https://litellm-classic-178302479088.us-west2.run.app'
+      model_temperature:
+        description: 'Model temperature'
+        required: false
+        default: ''
+      model_top_p:
+        description: 'Model top-p'
+        required: false
+        default: ''
+      model_thinking:
+        description: 'Enable model thinking'
+        required: false
+        default: 'enabled'
+      model_max_tokens:
+        description: 'Max tokens for model'
+        required: false
+        default: '64000'
+      runs_on:
+        description: 'Runner to use for the test job'
+        required: false
+        default: 'gcp-hosted'
+      run_count:
+        description: 'Number of times to run Harbor tests (each run is a separate job with 6h limit)'
+        required: false
+        default: '1'
+
+jobs:
+  # First job: Generate matrix based on run_count
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Generate run matrix
+        id: set-matrix
+        run: |
+          COUNT=${{ github.event.inputs.run_count || '1' }}
+          # Generate array [1, 2, 3, ..., COUNT]
+          MATRIX=$(seq 1 $COUNT | jq -R . | jq -s -c .)
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Generated matrix: $MATRIX"
+
+  # Second job: Run Harbor tests (each matrix item is a separate job)
+  test-ante-harbor:
+    name: Test Ante Harbor (Run ${{ matrix.run_index }})
+    needs: generate-matrix
+    runs-on: ${{ github.event.inputs.runs_on || 'ubuntu-22.04-16core' }}
+    timeout-minutes: 7200
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        run_index: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Clean up previous harbor (self-hosted only)
+        run: |
+          rm -rf $HOME/harbor || true
+
+      - name: Install Docker if not present
+        run: |
+          if ! command -v docker &> /dev/null; then
+            echo "Docker not found, installing..."
+            curl -fsSL https://get.docker.com | sudo sh
+            sudo usermod -aG docker $USER
+            echo "Docker installed successfully"
+          else
+            echo "Docker already installed"
+          fi
+          # Ensure current user is in docker group
+          if ! groups | grep -q '\bdocker\b'; then
+            sudo usermod -aG docker $USER
+          fi
+
+      - name: Clone Harbor
+        run: |
+          cd $HOME
+          git clone --depth 1 https://github.com/laude-institute/harbor.git
+
+      - name: Run Harbor tests
+        id: run-tests
+        env:
+          TAG: ${{ github.event.inputs.release_tag }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL_BASE_URL: ${{ github.event.inputs.model_base_url }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MODEL_NAME: ${{ github.event.inputs.model_name }}
+          PROVIDER: ${{ github.event.inputs.provider }}
+          MODEL_TEMPERATURE: ${{ github.event.inputs.model_temperature }}
+          MODEL_TOP_P: ${{ github.event.inputs.model_top_p }}
+          MODEL_THINKING: ${{ github.event.inputs.model_thinking }}
+          MODEL_MAX_TOKENS: ${{ github.event.inputs.model_max_tokens }}
+          HARBOR_ARGS: ${{ github.event.inputs.harbor_args }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          ANTE_ENV: github_action
+          ANTE_TAG: ${{ github.event.inputs.release_tag }}
+          GRAFANA_CLOUD_AUTH: ${{ secrets.GRAFANA_CLOUD_AUTH }}
+          GRAFANA_CLOUD_URL: ${{ vars.GRAFANA_CLOUD_URL }}
+        run: |
+          cd $HOME/harbor
+          cp -r "$GITHUB_WORKSPACE/.github/ante" .
+
+          echo "=== Run ${{ matrix.run_index }} of ${{ github.event.inputs.run_count }} ==="
+          echo "Running harbor with args: $HARBOR_ARGS and model: $MODEL_NAME"
+          # Use sg to run with docker group permissions (avoids needing to log out/in)
+          sg docker -c "uv run harbor run --agent-import-path ante.ante_agent:AnteAgent --model \"$MODEL_NAME\" $HARBOR_ARGS"
+
+      - name: Collect results
+        if: always()
+        run: |
+          cd $HOME/harbor
+          mkdir -p ${{ github.workspace }}/test-results
+          cp -r jobs/* ${{ github.workspace }}/test-results/ || true
+          cp -r trials/* ${{ github.workspace }}/test-results/ || true
+
+      - name: Upload test results as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ante-harbor-results-${{ github.run_id }}-run-${{ matrix.run_index }}
+          path: test-results/
+          retention-days: 30
+          if-no-files-found: warn
