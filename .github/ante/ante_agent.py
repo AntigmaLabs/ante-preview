@@ -52,6 +52,7 @@ class AnteAgent(BaseInstalledAgent):
             "ANTHROPIC_API_KEY": os.environ.get("ANTHROPIC_API_KEY", ""),
             "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
             "GEMINI_API_KEY": os.environ.get("GEMINI_API_KEY", ""),
+            "VERTEX_GEMINI_API_KEY": os.environ.get("VERTEX_GEMINI_API_KEY", ""),
             "MODEL_BASE_URL": os.environ.get("MODEL_BASE_URL", ""),
             "MODEL_NAME": model_name,
             "PROVIDER": provider,

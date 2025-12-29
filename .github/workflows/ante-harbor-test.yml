@@ -118,6 +118,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VERTEX_GEMINI_API_KEY: ${{ secrets.VERTEX_GEMINI_API_KEY }}
           MODEL_NAME: ${{ github.event.inputs.model_name }}
           PROVIDER: ${{ github.event.inputs.provider }}
           MODEL_TEMPERATURE: ${{ github.event.inputs.model_temperature }}
