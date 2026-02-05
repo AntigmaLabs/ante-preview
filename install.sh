@@ -1,224 +1,428 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-# Installer for Ante preview releases.
-#
-# Today the release repo is private, so downloads require authentication.
-# This script supports:
-#   - GitHub CLI: `gh` (uses your existing gh auth context)
-#   - Token:      `ANTE_TOKEN`, `GITHUB_TOKEN`, or `GH_TOKEN`
-#
-# When the repo becomes public, the same script continues to work without auth.
+# Demo installer script with SHA256 and size verification
+# Usage: curl -fsSL <install-script-url> | bash -s -- "<manifest-url>"
+# Or: ./install.sh "<manifest-url>"
 
-usage() {
-  cat <<'EOF'
-Usage:
-  scripts/install.sh [tag]
+MANIFEST_URL="${1}"
+BINARY_NAME="${BINARY_NAME:-demo}"
+NO_MODIFY_PATH="${NO_MODIFY_PATH:-false}"
 
-Examples:
-  scripts/install.sh             # install latest
-  scripts/install.sh v0.1.3      # install specific tag
-  scripts/install.sh 0.1.3       # same (auto-prefixes "v")
+# Install to user's home directory (no sudo required)
+INSTALL_DIR="$HOME/.${BINARY_NAME}/bin"
 
-Environment overrides:
-  ANTE_REPO        GitHub repo in owner/name form (default: AntigmaLabs/ante-preview)
-  ANTE_INSTALL_DIR Install directory (default: /usr/local/bin if writable, else ~/.local/bin)
-  ANTE_TOKEN       GitHub token (fallbacks: GITHUB_TOKEN, GH_TOKEN)
-  ANTE_NO_GH       If set, skip using gh even if installed
+# Temp files to track for cleanup
+TEMP_FILES=()
+TEMP_DIRS=()
 
-Notes:
-  - If the repo is private and you don't have `gh` auth, set ANTE_TOKEN (or GITHUB_TOKEN).
-  - Ensure the token has access to the repo (e.g. fine-grained token with read access).
-EOF
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+MUTED='\033[0;2m'
+NC='\033[0m' # No Color
+
+info() {
+    echo -e "${GREEN}[INFO]${NC} $1" >&2
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
+warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1" >&2
+}
 
-repo="${ANTE_REPO:-AntigmaLabs/ante-preview}"
-owner="${repo%%/*}"
-name="${repo#*/}"
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+    cleanup
+    exit 1
+}
 
-want_tag="${1:-latest}"
-if [[ "$want_tag" != "latest" && "$want_tag" != v* ]]; then
-  want_tag="v${want_tag}"
-fi
+# Cleanup function for temporary files
+cleanup() {
+    for f in "${TEMP_FILES[@]}"; do
+        rm -f "$f" 2>/dev/null || true
+    done
+    for d in "${TEMP_DIRS[@]}"; do
+        rm -rf "$d" 2>/dev/null || true
+    done
+}
 
-os="$(uname -s)"
-arch="$(uname -m)"
-
-platform=""
-case "$os" in
-  Darwin)
-    case "$arch" in
-      arm64) platform="darwin-arm64" ;;
-      *) ;;
-    esac
-    ;;
-  Linux)
-    case "$arch" in
-      x86_64 | amd64) platform="linux-x86_64-musl" ;;
-      *) ;;
-    esac
-    ;;
-esac
-
-if [[ -z "$platform" ]]; then
-  echo "ERROR: unsupported platform: os=$os arch=$arch" >&2
-  echo "Supported: darwin/arm64, linux/x86_64" >&2
-  exit 1
-fi
-
-default_install_dir="/usr/local/bin"
-if [[ -n "${ANTE_INSTALL_DIR:-}" ]]; then
-  install_dir="$ANTE_INSTALL_DIR"
-elif [[ -d "$default_install_dir" && -w "$default_install_dir" ]]; then
-  install_dir="$default_install_dir"
-else
-  install_dir="${HOME}/.local/bin"
-fi
-
-token="${ANTE_TOKEN:-${GITHUB_TOKEN:-${GH_TOKEN:-}}}"
-
-tmp="$(mktemp -d)"
-cleanup() { rm -rf "$tmp"; }
+# Set trap to cleanup on exit
 trap cleanup EXIT
 
-need_cmd() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    echo "ERROR: missing required command: $1" >&2
-    exit 1
-  fi
-}
-
-need_cmd tar
-need_cmd uname
-
-download_with_gh() {
-  [[ -n "${ANTE_NO_GH:-}" ]] && return 1
-  command -v gh >/dev/null 2>&1 || return 1
-
-  local tag="$want_tag"
-  if [[ "$tag" == "latest" ]]; then
-    tag="$(gh release view --repo "$repo" --json tagName --jq '.tagName')"
-  fi
-
-  local asset="ante-${tag}-${platform}.tar.gz"
-  gh release download "$tag" --repo "$repo" --pattern "$asset" --dir "$tmp" >/dev/null
-  printf '%s\n' "$tmp/$asset"
-}
-
-download_with_api() {
-  need_cmd curl
-  need_cmd python3
-
-  local api="https://api.github.com/repos/${owner}/${name}"
-  local headers=(
-    -H "Accept: application/vnd.github+json"
-    -H "X-GitHub-Api-Version: 2022-11-28"
-  )
-  if [[ -n "$token" ]]; then
-    headers+=(-H "Authorization: Bearer ${token}")
-  fi
-
-  local release_url
-  if [[ "$want_tag" == "latest" ]]; then
-    release_url="${api}/releases/latest"
-  else
-    release_url="${api}/releases/tags/${want_tag}"
-  fi
-
-  local meta
-  meta="$(curl -fsSL "${headers[@]}" "$release_url")"
-
-  local tag asset_name asset_id asset_url
-  IFS=$'\t' read -r tag asset_name asset_id asset_url < <(
-    python3 - "$platform" <<'PY'
-import json, sys
-
-platform = sys.argv[1]
-data = json.load(sys.stdin)
-tag = data.get("tag_name") or ""
-
-assets = data.get("assets") or []
-chosen = None
-for a in assets:
-    name = a.get("name") or ""
-    if name.endswith(f"-{platform}.tar.gz") and name.startswith("ante-"):
-        chosen = a
-        break
-
-if not chosen:
-    sys.stderr.write(f"ERROR: no release asset found for platform={platform}\n")
-    sys.exit(2)
-
-print("\t".join([
-    tag,
-    chosen.get("name") or "",
-    str(chosen.get("id") or ""),
-    chosen.get("browser_download_url") or "",
-]))
-PY
-  <<<"$meta"
-  )
-
-  if [[ -z "$tag" || -z "$asset_name" ]]; then
-    echo "ERROR: failed to resolve release metadata" >&2
-    exit 1
-  fi
-
-  local out="$tmp/$asset_name"
-  if [[ -n "$token" && -n "$asset_id" ]]; then
-    # Private-safe path: authenticated download through the assets API.
-    curl -fL \
-      -H "Authorization: Bearer ${token}" \
-      -H "Accept: application/octet-stream" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      "${api}/releases/assets/${asset_id}" \
-      -o "$out" >/dev/null
-  else
-    # Public path: direct download URL.
-    if [[ -z "$asset_url" ]]; then
-      echo "ERROR: missing browser_download_url (need a token for private repos)" >&2
-      exit 1
+# Downloader selection
+DOWNLOADER=""
+select_downloader() {
+    if command -v curl >/dev/null 2>&1; then
+        DOWNLOADER="curl"
+    elif command -v wget >/dev/null 2>&1; then
+        DOWNLOADER="wget"
+    else
+        error "Either curl or wget is required but neither is installed"
     fi
-    curl -fL "$asset_url" -o "$out" >/dev/null
-  fi
-
-  printf '%s\n' "$out"
 }
 
-tarball=""
-if tarball="$(download_with_gh 2>/dev/null)"; then
-  :
-else
-  tarball="$(download_with_api)"
-fi
+# Download function that works with both curl and wget
+download_file() {
+    local url="$1"
+    local output="$2"
 
-tar -xzf "$tarball" -C "$tmp"
-if [[ ! -f "$tmp/ante" ]]; then
-  echo "ERROR: unexpected tarball contents (missing 'ante' binary)" >&2
-  exit 1
-fi
-chmod +x "$tmp/ante"
+    if [ "$DOWNLOADER" = "curl" ]; then
+        if [ -n "$output" ]; then
+            curl -fsSL -o "$output" "$url"
+        else
+            curl -fsSL "$url"
+        fi
+    elif [ "$DOWNLOADER" = "wget" ]; then
+        if [ -n "$output" ]; then
+            wget -q -O "$output" "$url"
+        else
+            wget -q -O - "$url"
+        fi
+    else
+        return 1
+    fi
+}
 
-mkdir_cmd=(mkdir -p "$install_dir")
-install_cmd=(install -m 0755 "$tmp/ante" "$install_dir/ante")
+# Check if required commands are available
+check_requirements() {
+    select_downloader
 
-if [[ -w "$install_dir" || (! -e "$install_dir" && -w "$(dirname "$install_dir")") ]]; then
-  "${mkdir_cmd[@]}"
-  "${install_cmd[@]}"
-else
-  if command -v sudo >/dev/null 2>&1; then
-    sudo "${mkdir_cmd[@]}"
-    sudo "${install_cmd[@]}"
-  else
-    echo "ERROR: cannot write to $install_dir (no sudo available)" >&2
-    exit 1
-  fi
-fi
+    if ! command -v tar &> /dev/null; then
+        error "tar is required but not installed"
+    fi
 
-echo "Installed ante to ${install_dir}/ante"
-echo "Verify: ante --help"
+    # Check for sha256sum or shasum
+    if ! command -v sha256sum &> /dev/null && ! command -v shasum &> /dev/null; then
+        error "sha256sum or shasum is required but neither is installed"
+    fi
+}
+
+# Calculate SHA256 checksum (works on both Linux and macOS)
+calculate_sha256() {
+    local file="$1"
+    if command -v sha256sum &> /dev/null; then
+        sha256sum "$file" | awk '{print $1}'
+    elif command -v shasum &> /dev/null; then
+        shasum -a 256 "$file" | awk '{print $1}'
+    else
+        error "No sha256 tool available"
+    fi
+}
+
+# Detect OS and architecture
+detect_platform() {
+    local os arch
+
+    os="$(uname -s)"
+    arch="$(uname -m)"
+
+    case "$os" in
+        Linux)
+            case "$arch" in
+                x86_64)
+                    echo "linux-x86_64"
+                    ;;
+                aarch64|arm64)
+                    echo "linux-arm64"
+                    ;;
+                *)
+                    error "Unsupported Linux architecture: $arch. Only x86_64 and arm64 are supported."
+                    ;;
+            esac
+            ;;
+        Darwin)
+            case "$arch" in
+                arm64)
+                    echo "darwin-arm64"
+                    ;;
+                x86_64)
+                    echo "darwin-x86_64"
+                    ;;
+                *)
+                    error "Unsupported macOS architecture: $arch. Only arm64 and x86_64 are supported."
+                    ;;
+            esac
+            ;;
+        *)
+            error "Unsupported operating system: $os"
+            ;;
+    esac
+}
+
+# Check if jq is available
+HAS_JQ=false
+check_jq() {
+    if command -v jq >/dev/null 2>&1; then
+        HAS_JQ=true
+    fi
+}
+
+# Fallback JSON parser using bash regex (when jq is not available)
+get_field_from_json_bash() {
+    local json="$1"
+    local platform="$2"
+    local field="$3"
+
+    # Normalize JSON to single line
+    json=$(echo "$json" | tr -d '\n\r\t' | sed 's/ \+/ /g')
+
+    # Extract value using bash regex
+    if [[ "$field" == "size" ]]; then
+        # For numeric fields
+        if [[ $json =~ \"$platform\"[^}]*\"$field\"[[:space:]]*:[[:space:]]*([0-9]+) ]]; then
+            echo "${BASH_REMATCH[1]}"
+            return 0
+        fi
+    else
+        # For string fields
+        if [[ $json =~ \"$platform\"[^}]*\"$field\"[[:space:]]*:[[:space:]]*\"([^\"]+)\" ]]; then
+            echo "${BASH_REMATCH[1]}"
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
+# Get binary info from manifest for specific platform
+get_binary_info() {
+    local manifest_file="$1"
+    local platform="$2"
+    local field="$3"
+
+    local manifest_content
+    manifest_content=$(cat "$manifest_file")
+
+    if [ "$HAS_JQ" = true ]; then
+        local value
+        value=$(echo "$manifest_content" | jq -r ".binaries[\"$platform\"][\"$field\"] // empty")
+        if [ -n "$value" ] && [ "$value" != "null" ]; then
+            echo "$value"
+            return 0
+        fi
+    fi
+
+    # Fallback to bash regex parser
+    get_field_from_json_bash "$manifest_content" "$platform" "$field"
+}
+
+# Download manifest
+download_manifest() {
+    local manifest_url="$1"
+    local tmp_manifest
+
+    info "Downloading release manifest..."
+
+    tmp_manifest=$(mktemp)
+    TEMP_FILES+=("$tmp_manifest")
+
+    if ! download_file "$manifest_url" "$tmp_manifest"; then
+        error "Failed to download manifest from: $manifest_url"
+    fi
+
+    echo "$tmp_manifest"
+}
+
+# Add install directory to PATH in shell config
+add_to_path() {
+    local config_file="$1"
+    local command="$2"
+
+    if grep -Fxq "$command" "$config_file" 2>/dev/null; then
+        info "PATH already configured in $config_file"
+    elif [[ -w "$config_file" ]]; then
+        echo -e "\n# ${BINARY_NAME}" >> "$config_file"
+        echo "$command" >> "$config_file"
+        info "${MUTED}Added ${NC}${BINARY_NAME}${MUTED} to \$PATH in ${NC}$config_file"
+    else
+        warn "Could not write to $config_file. Manually add:"
+        echo "  $command"
+    fi
+}
+
+# Configure PATH for the current shell
+configure_path() {
+    if [[ "$NO_MODIFY_PATH" == "true" ]]; then
+        return
+    fi
+
+    # Check if already in PATH
+    if [[ ":$PATH:" == *":$INSTALL_DIR:"* ]]; then
+        return
+    fi
+
+    local current_shell
+    current_shell=$(basename "$SHELL")
+
+    local config_files=""
+    local XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+    case "$current_shell" in
+        fish)
+            config_files="$HOME/.config/fish/config.fish"
+            ;;
+        zsh)
+            config_files="${ZDOTDIR:-$HOME}/.zshrc ${ZDOTDIR:-$HOME}/.zshenv $XDG_CONFIG_HOME/zsh/.zshrc"
+            ;;
+        bash)
+            config_files="$HOME/.bashrc $HOME/.bash_profile $HOME/.profile $XDG_CONFIG_HOME/bash/.bashrc"
+            ;;
+        ash|sh)
+            config_files="$HOME/.profile"
+            ;;
+        *)
+            config_files="$HOME/.bashrc $HOME/.bash_profile $HOME/.profile"
+            ;;
+    esac
+
+    # Find existing config file
+    local config_file=""
+    for file in $config_files; do
+        if [[ -f "$file" ]]; then
+            config_file="$file"
+            break
+        fi
+    done
+
+    if [[ -z "$config_file" ]]; then
+        warn "No shell config file found for $current_shell."
+        warn "Manually add to your PATH:"
+        echo "  export PATH=\"$INSTALL_DIR:\$PATH\""
+        return
+    fi
+
+    # Add PATH based on shell type
+    case "$current_shell" in
+        fish)
+            add_to_path "$config_file" "fish_add_path $INSTALL_DIR"
+            ;;
+        *)
+            add_to_path "$config_file" "export PATH=\"$INSTALL_DIR:\$PATH\""
+            ;;
+    esac
+
+    # Handle GitHub Actions
+    if [ -n "${GITHUB_ACTIONS:-}" ] && [ "${GITHUB_ACTIONS}" == "true" ]; then
+        echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+        info "Added $INSTALL_DIR to \$GITHUB_PATH"
+    fi
+}
+
+# Main installation function
+install_binary() {
+    local platform manifest_file binary_url expected_sha256 expected_size tmp_dir download_path
+
+    # Check requirements
+    check_requirements
+    check_jq
+
+    # Validate manifest URL
+    if [ -z "$MANIFEST_URL" ]; then
+        error "Manifest URL is required.\nUsage: $0 \"<manifest-url>\""
+    fi
+
+    info "Starting ${BINARY_NAME} installation..."
+
+    # Create install directory
+    mkdir -p "$INSTALL_DIR"
+
+    # Detect platform
+    info "Detecting platform..."
+    platform="$(detect_platform)"
+    info "Platform detected: $platform"
+
+    # Download manifest
+    manifest_file="$(download_manifest "$MANIFEST_URL")"
+
+    # Get binary info for this platform
+    info "Parsing manifest for $platform binary..."
+    binary_url="$(get_binary_info "$manifest_file" "$platform" "url")"
+    expected_sha256="$(get_binary_info "$manifest_file" "$platform" "sha256")"
+    expected_size="$(get_binary_info "$manifest_file" "$platform" "size")"
+
+    if [ -z "$binary_url" ]; then
+        error "Failed to get binary URL from manifest for platform: $platform"
+    fi
+
+    info "Binary URL found"
+    [ -n "$expected_sha256" ] && info "Expected SHA256: $expected_sha256"
+    [ -n "$expected_size" ] && info "Expected size: $expected_size bytes"
+
+    # Create temporary directory for download
+    tmp_dir="$(mktemp -d)"
+    TEMP_DIRS+=("$tmp_dir")
+    download_path="${tmp_dir}/${BINARY_NAME}.tar.gz"
+
+    # Download binary tarball
+    info "Downloading ${BINARY_NAME} binary..."
+    if ! download_file "$binary_url" "$download_path"; then
+        error "Failed to download binary from: $binary_url"
+    fi
+
+    # Verify file size
+    if [ -n "$expected_size" ] && [ "$expected_size" != "null" ]; then
+        info "Verifying file size..."
+        actual_size=$(wc -c < "$download_path" | tr -d ' ')
+        if [ "$actual_size" -ne "$expected_size" ]; then
+            error "Size mismatch! Expected: $expected_size bytes, Got: $actual_size bytes"
+        fi
+        info "Size verification passed: $actual_size bytes"
+    else
+        warn "Size verification skipped (not specified in manifest)"
+    fi
+
+    # Verify SHA256 checksum
+    if [ -n "$expected_sha256" ] && [ "$expected_sha256" != "null" ]; then
+        info "Verifying SHA256 checksum..."
+        actual_sha256=$(calculate_sha256 "$download_path")
+        if [ "$actual_sha256" != "$expected_sha256" ]; then
+            error "SHA256 mismatch! Expected: $expected_sha256, Got: $actual_sha256"
+        fi
+        info "SHA256 verification passed"
+    else
+        warn "SHA256 verification skipped (not specified in manifest)"
+    fi
+
+    # Extract tarball
+    info "Extracting binary..."
+    if ! tar -xzf "$download_path" -C "$tmp_dir"; then
+        error "Failed to extract tarball"
+    fi
+
+    # Verify binary exists
+    if [ ! -f "${tmp_dir}/${BINARY_NAME}" ]; then
+        error "Binary '${BINARY_NAME}' not found in downloaded package"
+    fi
+
+    # Install binary (no sudo needed - we're in user's home directory)
+    info "Installing ${BINARY_NAME} to ${INSTALL_DIR}..."
+    cp "${tmp_dir}/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
+    chmod 755 "${INSTALL_DIR}/${BINARY_NAME}"
+
+    info "${BINARY_NAME} installed successfully to ${INSTALL_DIR}/${BINARY_NAME}"
+
+    # Configure PATH
+    configure_path
+
+    # Verify installation
+    if command -v "$BINARY_NAME" &> /dev/null; then
+        info "Verification: $($BINARY_NAME --version 2>/dev/null || echo "${BINARY_NAME} is available")"
+    else
+        echo ""
+        warn "${BINARY_NAME} was installed but is not yet in your PATH."
+        warn "To use it now, either:"
+        echo ""
+        echo "  1. Restart your shell, or"
+        echo "  2. Run: source ~/.bashrc  (or ~/.zshrc for zsh)"
+        echo "  3. Or run directly: ${INSTALL_DIR}/${BINARY_NAME}"
+        echo ""
+    fi
+}
+
+# Run installation
+install_binary
+
+echo ""
+info "Installation complete!"
+echo ""
