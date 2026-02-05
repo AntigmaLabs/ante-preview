@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-# Demo installer script with SHA256 and size verification
+# Ante installer script with SHA256 and size verification
 # Usage: curl -fsSL <install-script-url> | bash -s -- "<manifest-url>"
 # Or: ./install.sh "<manifest-url>"
 
 MANIFEST_URL="${1}"
-BINARY_NAME="${BINARY_NAME:-demo}"
+BINARY_NAME="${BINARY_NAME:-ante}"
 NO_MODIFY_PATH="${NO_MODIFY_PATH:-false}"
 
 # Install to user's home directory (no sudo required)
