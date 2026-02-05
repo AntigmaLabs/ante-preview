@@ -16,6 +16,11 @@ It was designed from ground up and built with native rust for security, performa
 ## Quick Start
 
 ### Installation
+Download the install.sh script and run
+```sh
+chomd +x install.sh
+./install.sh anen.ai/install-manifest
+```
 
 ### Run as headless
 
