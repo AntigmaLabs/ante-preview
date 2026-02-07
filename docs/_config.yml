@@ -1,9 +1,10 @@
 title: Ante Preview
 description: Ante Preview GitHub Pages site
 
-# Keep this empty unless you explicitly host as a project site and want nicer local URLs.
-# GitHub Pages will apply the repository base path automatically when serving.
-baseurl: ""
+# GitHub Pages "project" site lives under /<repo>.
+# Without baseurl, theme assets may resolve to /assets/* (domain root) and 404.
+url: "https://antigmalabs.github.io"
+baseurl: "/ante-preview"
 permalink: pretty
 
 markdown: kramdown
