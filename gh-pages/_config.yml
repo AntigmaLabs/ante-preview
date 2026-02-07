@@ -1,0 +1,13 @@
+title: Ante Preview
+description: Ante Preview GitHub Pages site
+
+# Keep this empty unless you explicitly host as a project site and want nicer local URLs.
+# GitHub Pages will apply the repository base path automatically when serving.
+baseurl: ""
+permalink: pretty
+
+markdown: kramdown
+kramdown:
+  input: GFM
+theme: jekyll-theme-hacker
+show_downloads: false

@@ -1,0 +1,47 @@
+---
+---
+
+/* Override GitHub Pages theme CSS. */
+@import "{{ site.theme }}";
+
+/*
+  Accent color
+  ------------
+  Change the numbers below to update the site's “neon” accent.
+  Format: R G B (0-255)
+*/
+:root {
+  --accent-rgb: 181 232 83;
+  --accent: rgb(var(--accent-rgb));
+  --accent-glow: rgba(var(--accent-rgb) / 0.18);
+}
+
+/* Remove the theme header block entirely. */
+header {
+  display: none;
+}
+
+/* Tighten spacing a bit since the header is gone. */
+#main_content {
+  padding-top: 10px;
+}
+
+/* Re-skin the main “hacker” accent from the theme. */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--accent);
+  text-shadow: 0 0 5px var(--accent-glow), 0 0 10px var(--accent-glow);
+}
+
+pre {
+  color: var(--accent);
+}
+
+th {
+  border-bottom-color: var(--accent);
+}
+
+hr {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
