@@ -13,24 +13,25 @@ Agents work in parallel on the same problem with no interaction. An aggregator s
 
 ```mermaid
 flowchart TB
-    Start([Start]) --> Par{{"Parallel"}}
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef agg fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
 
-    Par --> A1[Agent 1]
-    Par --> A2[Agent 2]
-    Par --> A3[Agent 3]
+  Start([Start]) --> Fanout{{Parallel fan-out}}
+  Fanout --> A1[Agent 1]
+  Fanout --> A2[Agent 2]
+  Fanout --> A3[Agent 3]
 
-    A1 --> Sync{{"Sync"}}
-    A2 --> Sync
-    A3 --> Sync
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
 
-    Sync --> Agg[Aggregator<br/>Synthesis]
-    Agg --> End([End])
+  Barrier --> Agg[Aggregator<br/>Synthesis]
+  Agg --> End([End])
 
-    style Par fill:#e1f5ff
-    style Sync fill:#e1f5ff
-    style A1 fill:#fff4e6
-    style A2 fill:#fff4e6
-    style A3 fill:#fff4e6
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Agg agg;
 ```
 
 ## Decentralized
@@ -41,78 +42,80 @@ Agents run in parallel rounds, reading each other's prior outputs and proposing 
 
 ```mermaid
 flowchart TB
-    Start([Start]) --> Init[Initialize]
-    Init --> LS{{"Loop: N Rounds"}}
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
 
-    LS --> Par{{"Parallel"}}
+  Start([Start]) --> Init[Initialize]
+  Init --> Board[(Shared board<br/>proposals so far)]
 
-    Par --> A1["Agent 1<br/>Read & Propose"]
-    Par --> A2["Agent 2<br/>Read & Propose"]
-    Par --> A3["Agent 3<br/>Read & Propose"]
+  Board --> Fanout{{Parallel: read & propose}}
+  Fanout --> A1[Agent 1<br/>Read board<br/>+ propose delta]
+  Fanout --> A2[Agent 2<br/>Read board<br/>+ propose delta]
+  Fanout --> A3[Agent 3<br/>Read board<br/>+ propose delta]
 
-    A1 --> Sync{{"Sync"}}
-    A2 --> Sync
-    A3 --> Sync
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
 
-    Sync --> Save[Save to File]
-    Save --> Update[Update Variables]
-    Update --> LE{{"Loop End"}}
+  Barrier --> Merge[Append deltas<br/>to board]
+  Merge --> Board
 
-    LE -->|Continue| LS
-    LE -->|Done| Consensus[Consensus<br/>Formation]
+  Board --> Stop{{Stop?<br/>round limit or convergence}}
+  Stop -->|No| Fanout
+  Stop -->|Yes| Consensus[Consensus formation<br/>from board]
+  Consensus --> End([End])
 
-    Consensus --> End([End])
-
-    style Par fill:#e1f5ff
-    style Sync fill:#e1f5ff
-    style A1 fill:#fff4e6
-    style A2 fill:#fff4e6
-    style A3 fill:#fff4e6
-    style LS fill:#ffe6f0
-    style LE fill:#ffe6f0
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Board state;
+  class Stop decision;
 ```
 
 ## Centralized Iterative
 
-A central orchestrator decomposes the problem, dispatches sub-agents in parallel, evaluates their results, and decides whether to refine or finish.
+A central orchestrator decomposes the problem, dispatches agents in parallel, evaluates their results, and decides whether to refine or finish.
 
 **Best for:** complex tasks that benefit from top-down planning with quality gates (code generation with review, multi-step research).
 
 ```mermaid
 flowchart TB
-    Start([Start]) --> Setup[Setup:<br/>CONTINUE=true]
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef orch fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
+  classDef eval fill:#ffe6e6,stroke:#fb7185,color:#4c0519;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
 
-    Setup --> LS{{"Loop Start"}}
+  Start([Start]) --> Setup[Setup]
+  Setup --> Workspace[(Workspace<br/>tasks + results)]
 
-    LS --> Orch1["Orchestrator<br/>Decompose/Refine"]
+  Workspace --> Orch[Orchestrator<br/>Decompose / refine plan]
+  Orch --> Fanout{{Parallel: execute tasks}}
+  Fanout --> A1[Agent 1]
+  Fanout --> A2[Agent 2]
+  Fanout --> A3[Agent 3]
 
-    Orch1 --> Par{{"Parallel"}}
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
 
-    Par --> S1[Sub-Agent 1]
-    Par --> S2[Sub-Agent 2]
-    Par --> S3[Sub-Agent 3]
+  Barrier --> Write[Write results<br/>to workspace]
+  Write --> Workspace
 
-    S1 --> W[Write Results]
-    S2 --> W
-    S3 --> W
+  Workspace --> OrchEval[Orchestrator<br/>Evaluate quality]
+  OrchEval --> Stop{{Done?}}
+  Stop -->|No: refine| Orch
+  Stop -->|Yes| Final[Final<br/>Synthesis]
+  Final --> End([End])
 
-    W --> OrchEval["Orchestrator (Evaluate):<br/>• Evaluate quality<br/>• Update CONTINUE"]
-
-    OrchEval --> LE{{"Loop End"}}
-
-    LE -->|Quality OK<br/>OR Max Rounds| Final[Final<br/>Synthesis]
-    LE -->|Need Refine| LS
-
-    Final --> End([End])
-
-    style Par fill:#e1f5ff
-    style S1 fill:#fff4e6
-    style S2 fill:#fff4e6
-    style S3 fill:#fff4e6
-    style Orch1 fill:#e6f3ff
-    style OrchEval fill:#ffe6e6
-    style LS fill:#ffe6f0
-    style LE fill:#ffe6f0
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Orch orch;
+  class OrchEval eval;
+  class Workspace state;
+  class Stop decision;
 ```
 
 ## Hybrid Iterative
@@ -123,55 +126,55 @@ Combines centralized orchestration with decentralized peer refinement. The orche
 
 ```mermaid
 flowchart TB
-    Start([Start]) --> Setup[Setup Files]
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef peer fill:#f0e6ff,stroke:#a78bfa,color:#2e1065;
+  classDef orch fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
+  classDef eval fill:#ffe6e6,stroke:#fb7185,color:#4c0519;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
 
-    Setup --> LS{{"Loop Start"}}
+  Start([Start]) --> Setup[Setup]
+  Setup --> Workspace[(Workspace<br/>drafts + notes)]
 
-    LS --> Orch["Orchestrator<br/>Plan"]
+  Workspace --> Orch[Orchestrator<br/>Plan]
+  Orch --> Fanout1{{Parallel: draft}}
+  Fanout1 --> A1[Agent 1]
+  Fanout1 --> A2[Agent 2]
+  Fanout1 --> A3[Agent 3]
 
-    Orch --> Par1{{"Parallel"}}
+  A1 --> Barrier1{{Barrier / sync}}
+  A2 --> Barrier1
+  A3 --> Barrier1
 
-    Par1 --> A1[Agent 1]
-    Par1 --> A2[Agent 2]
-    Par1 --> A3[Agent 3]
+  Barrier1 --> Write1[Write drafts<br/>to workspace]
+  Write1 --> Workspace
 
-    A1 --> Sync1{{"Sync"}}
-    A2 --> Sync1
-    A3 --> Sync1
+  Workspace --> Fanout2{{Parallel: peer refine}}
+  Fanout2 --> PR1[Peer 1<br/>Refine using others]
+  Fanout2 --> PR2[Peer 2<br/>Refine using others]
+  Fanout2 --> PR3[Peer 3<br/>Refine using others]
 
-    Sync1 --> Par2{{"Parallel"}}
+  PR1 --> Barrier2{{Barrier / sync}}
+  PR2 --> Barrier2
+  PR3 --> Barrier2
 
-    Par2 --> PR1["Peer 1<br/>Refine using 2,3"]
-    Par2 --> PR2["Peer 2<br/>Refine using 1,3"]
-    Par2 --> PR3["Peer 3<br/>Refine using 1,2"]
+  Barrier2 --> Write2[Write refinements<br/>to workspace]
+  Write2 --> Workspace
 
-    PR1 --> Sync2{{"Sync"}}
-    PR2 --> Sync2
-    PR3 --> Sync2
+  Workspace --> OrchEval[Orchestrator<br/>Evaluate quality]
+  OrchEval --> Stop{{Done?}}
+  Stop -->|No: continue| Orch
+  Stop -->|Yes| Final[Final<br/>Synthesis]
+  Final --> End([End])
 
-    Sync2 --> OrchEval["Orchestrator (Evaluate):<br/>• Read communications<br/>• Evaluate quality<br/>• Write control (CONTINUE/STOP)"]
-
-    OrchEval --> LE{{"Loop End"}}
-
-    LE -->|STOP<br/>OR Max| Final[Final<br/>Synthesis]
-    LE -->|CONTINUE| LS
-
-    Final --> End([End])
-
-    style Orch fill:#e6f3ff
-    style Par1 fill:#e1f5ff
-    style Par2 fill:#e1f5ff
-    style Sync1 fill:#e1f5ff
-    style Sync2 fill:#e1f5ff
-    style A1 fill:#fff4e6
-    style A2 fill:#fff4e6
-    style A3 fill:#fff4e6
-    style PR1 fill:#ffe6f0
-    style PR2 fill:#ffe6f0
-    style PR3 fill:#ffe6f0
-    style OrchEval fill:#ffe6e6
-    style LS fill:#ffe6f0
-    style LE fill:#ffe6f0
+  class Fanout1,Fanout2,Barrier1,Barrier2 control;
+  class A1,A2,A3 agent;
+  class PR1,PR2,PR3 peer;
+  class Orch orch;
+  class OrchEval eval;
+  class Workspace state;
+  class Stop decision;
 ```
 
 ## Choosing an architecture

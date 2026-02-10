@@ -91,9 +91,9 @@ sequenceDiagram
     participant LLM
   end
 
-  User->>Core: Op::ConfigureSession
+  User->>Core: Op::NewSession
   Core->>Session: Create session
-  Core-->>User: Evt::SessionInitialized
+  Core-->>User: Evt::SessionInit
 
   User->>Session: Op::UserInput
   Session-->>+Task: Start task
@@ -103,12 +103,11 @@ sequenceDiagram
     note over Task,LLM: Turn 1
     Task->>LLM: prompt
     LLM-->>Task: response (exec)
-    Task-->>User: Evt::ExecApprovalRequest
-    User->>Task: Op::ExecApproval::Allow
-    Task-->>User: Evt::ExecStart
+    Task-->>User: Evt::RequestApproval
+    User->>Task: Op::ApprovalResponse(allow)
+    Task-->>User: Evt::ToolCallStarted
     Task->>Task: exec
-    Task-->>User: Evt::ExecStop
-    Task-->>User: Evt::TurnComplete
+    Task-->>User: Evt::ToolCallFinished
   end
 
   rect rgb(245,245,245)
@@ -122,7 +121,7 @@ sequenceDiagram
     Task-->>User: Evt::TurnComplete
   end
 
-  Task-->>-User: Evt::TaskComplete
+  Task-->>-User: Evt::TaskFinished
 ```
 
 ### Task interruption
@@ -168,7 +167,7 @@ sequenceDiagram
   LLM-->>Task2: msg + completed
   Task2-->>User: Evt::AgentMessage
   Task2-->>User: Evt::TurnComplete
-  Task2-->>-User: Evt::TaskCompleted
+  Task2-->>-User: Evt::TaskFinished
 ```
 
 ## Context management
