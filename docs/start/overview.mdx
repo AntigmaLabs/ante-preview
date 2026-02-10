@@ -18,16 +18,7 @@ It is built from the ground up in native Rust for security, performance, and res
 
 ## How it works
 
-Ante uses a client-daemon architecture. The TUI (or headless runner) is the client that sends operations to a daemon. The daemon manages sessions, communicates with LLM providers, and executes tools on your behalf.
-
-```
-┌─────────┐     Op      ┌─────────┐     API      ┌──────────┐
-│  Client  │ ──────────▶ │  Daemon  │ ──────────▶ │ Provider │
-│ (TUI/CLI)│ ◀────────── │ (Session)│ ◀────────── │  (LLM)   │
-└─────────┘     Evt      └─────────┘              └──────────┘
-```
-
-The client sends `Op` (operations) like user input, and the daemon responds with `Evt` (events) like agent messages and tool calls.
+Terminal and cli is our primary interface, and we will add more over time.
 
 ## Next steps
 
