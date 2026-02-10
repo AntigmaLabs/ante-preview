@@ -35,8 +35,11 @@ From stdin: echo `"your prompt" | ante "explain"`
 `ante`
 
 ## Update Documentation Site
-Documentation site uses mintlify 
-preview: `npx mintlify dev`
+Documentation site uses mintlify
+
+Check local change
+
+in `docs/` folder run `npx mintlify dev`
 
 ## Github Page
-Use Github Page to host static files
+Use Github Page to host static files in `gh-page` like installation script
