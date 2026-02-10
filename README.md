@@ -14,6 +14,7 @@
 Ante is a lightweight agent live in terminal built by Antigma Labs.
 It was designed from ground up and built with native rust for security, performance and resistance to AI generated slop. 
 
+
 ## Quick Start
 
 ### Installation
@@ -32,3 +33,10 @@ From stdin: echo `"your prompt" | ante "explain"`
 
 ### Run as Interactive TUI
 `ante`
+
+## Update Documentation Site
+Documentation site uses mintlify 
+preview: `npx mintlify dev`
+
+## Github Page
+Use Github Page to host static files
