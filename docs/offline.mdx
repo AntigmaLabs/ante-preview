@@ -1,13 +1,17 @@
 ---
 title: "Offline Mode"
-description: "Run Ante with local models using llama.cpp — no API keys or internet required"
+description: "Run Ante with local models - no API keys or internet required"
 ---
 
-Ante can run entirely offline using local GGUF models via [llama.cpp](https://github.com/ggerganov/llama.cpp). This means no API keys, no internet, and no data leaving your machine.
+Ante can run entirely offline using local GGUF models via [llama.cpp](https://github.com/ggerganov/llama.cpp) (our current local inference engine). This means no API keys, no internet, and no data leaving your machine.
+
+We expect to explore additional local engines over time, but the offline workflow and model format support will remain focused on a good “it just works” experience.
+
+In parallel, we’re building toward a truly self-contained agent stack; see our ongoing Rust effort at [AntigmaLabs/nanochat-rs](https://github.com/AntigmaLabs/nanochat-rs).
 
 ## How it works
 
-Ante includes an integrated inference engine powered by llama.cpp. When you select offline mode, Ante:
+Ante includes an integrated inference engine currently powered by llama.cpp. When you select offline mode, Ante:
 
 1. Discovers GGUF models on your system
 2. Estimates memory requirements based on model size and context window

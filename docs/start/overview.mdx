@@ -1,24 +1,23 @@
 ---
-title: "Introduction"
-description: "Ante is a lightweight terminal AI agent built in Rust for coding and engineering tasks"
+title: "Overview"
+description: "Ante, self-contained agent that self-organizes"
 ---
 
 # Ante
 
-Ante is a lightweight AI agent that lives in your terminal, built by [Antigma Labs](https://antigma.ai). It focuses on coding and daily engineering tasks, designed from the ground up in native Rust for security, performance, and resistance to bloat.
+**An**other **Te**rminal — Ante is a lightweight AI agent that lives in your terminal, built by [Antigma Labs](https://antigma.ai). 
+It is built from the ground up in native Rust for security, performance, and resistance to AI generated slop.
+
+## Things we care about
+- Maintain a tight & tiny core
+- Minimize cognitive load, both for users and devs
+- Minimize dependencies, both runtime and build-time
+- Principled agent organization
+- Close the loop between training and inference
 
 <Warning>
-  Ante is currently in beta and provided as a research preview. It may contain experimental features or incomplete functionality. Use with caution in production environments.
+  Ante is currently in **preview** and under active development. Expect breaking changes, experimental features, and incomplete functionality. Currently only **macOS** and **Linux** are supported.
 </Warning>
-
-## Why Ante?
-
-- **Native Rust** — Fast startup, low memory footprint, no runtime dependencies
-- **Terminal-first** — Rich TUI for interactive sessions, headless mode for scripting and CI
-- **Provider agnostic** — Works with Anthropic, OpenAI, Gemini, Grok, Open Router, and local models
-- **Offline capable** — Run models locally via llama.cpp with no API keys required
-- **Extensible** — [Agent Skills](https://agentskills.io), sub-agents
-- **Secure by default** — Tool approval gates, configurable permissions, no ambient authority
 
 ## How it works
 
@@ -36,16 +35,16 @@ The client sends `Op` (operations) like user input, and the daemon responds with
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Quickstart" icon="bolt" href="/quickstart">
+  <Card title="Quickstart" icon="bolt" href="/start/quickstart">
     Install Ante and run your first prompt in under a minute.
   </Card>
-  <Card title="Core Concepts" icon="shapes" href="/core-concepts">
+  <Card title="Core Concepts" icon="shapes" href="/concepts/core-concepts">
     Understand sessions, tasks, turns, and the protocol.
   </Card>
-  <Card title="Interactive TUI" icon="terminal" href="/tui">
+  <Card title="Interactive TUI" icon="terminal" href="/usage/tui">
     Learn to use the rich terminal interface.
   </Card>
-  <Card title="Headless Mode" icon="code" href="/headless">
+  <Card title="Headless Mode" icon="code" href="/usage/headless">
     Integrate Ante into scripts and CI pipelines.
   </Card>
 </CardGroup>

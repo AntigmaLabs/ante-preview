@@ -25,6 +25,67 @@ Ante follows a clean separation of concerns with a client-daemon architecture. T
 - **Daemon** — The core engine. Receives operations, manages sessions, dispatches to LLM providers, schedules tool execution, and emits events.
 - **Transport** — Bounded async channels (Tokio) connect client and daemon within the same process. Message IDs enable tracing across the boundary.
 
+## Key modules
+
+```
+src/
+├── main.rs              # Entry point: TUI vs headless dispatch
+├── core/
+│   ├── daemon.rs        # Main event loop, session lifecycle
+│   ├── session.rs       # Dialog state, turn management, compaction
+│   ├── turn.rs          # LLM interaction, tool scheduling
+│   └── prompt/          # System prompts, auto-memory
+├── llm/                 # Provider implementations
+│   ├── anthropic.rs     # Claude via Messages API
+│   ├── openai.rs        # GPT models
+│   ├── gemini.rs        # Google Gemini
+│   └── openai_compatible.rs  # Grok, Open Router, etc.
+├── tools/               # Tool trait and implementations
+│   ├── tool_box.rs      # Tool registry and filtering
+│   ├── fs/              # Read, Write, Edit, Glob, Grep
+│   ├── shell/           # Bash, BashOutput, KillShell
+│   └── builtin/         # Task, TodoWrite, WebFetch, WebSearch
+├── tui/                 # Terminal UI
+│   ├── app.rs           # Event loop, rendering
+│   └── components/      # Chat, input, diff approval, selectors
+├── offline/             # Offline mode (llama.cpp)
+├── storage/             # Settings, sessions, skills, agents
+├── protocol/            # Op/Evt types, transport, IDs
+└── logging/             # Tracing + OpenTelemetry
+```
+
+## LLM providers
+
+Ante is provider-agnostic. Each provider implements a common interface for sending prompts and receiving streaming responses.
+
+| Provider | Wire Format | Models |
+|---|---|---|
+| Anthropic | Messages API | Claude family |
+| OpenAI | Chat Completions / Responses | GPT-4o, o1, etc. |
+| Gemini | Gemini API | Gemini family |
+| Grok | OpenAI-compatible | Grok models |
+| Open Router | OpenAI-compatible | Multiple providers |
+| Local | llama.cpp | GGUF models |
+
+Providers are resolved from a catalog at session init time. The user can override via CLI flags (`--provider`, `--model`) or persistent settings.
+
+### Authentication
+
+- **API keys** — Set via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`)
+- **OAuth** — Interactive OAuth flow supported for Anthropic and OpenAI, handled through the TUI
+
+## Tool system
+
+Tools are the agent's hands. Each tool implements the `Tool` trait:
+
+```rust
+#[async_trait]
+pub trait Tool: Send + Sync {
+    fn metadata(&self) -> &ToolMetadata;
+    async fn call(&self, input: ToolCallInput) -> Result<ToolCallOutput>;
+}
+```
+
 ### Built-in tools
 
 | Tool | Category | Approval | Description |
