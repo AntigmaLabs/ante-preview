@@ -7,73 +7,76 @@
     "light": "#FF8C42",
     "dark": "#C2410C"
   },
-  "favicon": "/assets/ante.png",
+  "favicon": "/assets/ante2.png",
   "logo": {
     "light": "/assets/ante.png",
     "dark": "/assets/ante.png"
-  },
-  "navigation": {
-    "tabs": [
-      {
-        "tab": "Documentation",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": ["introduction", "quickstart"]
-          },
-          {
-            "group": "Concepts",
-            "pages": [
-              "core-concepts",
-              "architecture"
-            ]
-          },
-          {
-            "group": "Usage",
-            "pages": [
-              "tui",
-              "headless",
-              "offline"
-            ]
-          },
-          {
-            "group": "Extensibility",
-            "pages": [
-              "commands",
-              "subagents",
-              "memory"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": ["tools", "configuration", "protocol"]
-          }
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Discord",
-          "href": "https://discord.gg/pqhj3DNGz2",
-          "icon": "discord"
-        }
-      ]
-    }
   },
   "navbar": {
     "links": [
       {
         "label": "Website",
+        "icon": "globe",
         "href": "https://antigma.ai"
+      },
+      {
+        "label": "Discord",
+        "icon": "discord",
+        "href": "https://discord.gg/pqhj3DNGz2"
+      },
+      {
+        "label": "GitHub",
+        "href": "https://github.com/AntigmaLabs/ante-preview",
+        "icon": "github"
       }
     ]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/antigma_labs",
-      "github": "https://github.com/AntigmaLabs",
-      "discord": "https://discord.gg/svxG9ffc"
-    }
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Ante Preview",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["start/overview", "start/quickstart"]
+          },
+          {
+            "group": "Concepts",
+            "pages": [
+              "concepts/core-concepts",
+              "concepts/architecture",
+              "concepts/protocol"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "usage/tui",
+              "usage/headless"
+            ]
+          },
+          {
+            "group": "Extensibility",
+            "pages": [
+              "extend/commands",
+              "extend/subagents",
+              "extend/configuration"
+            ]
+          },
+          {
+            "group": "Offline Mode",
+            "pages": ["offline"]
+          },
+          {
+            "group": "Memory",
+            "pages": ["memory"]
+          },
+          {
+            "group": "Reference",
+            "pages": ["tools"]
+          }
+        ]
+      }
+    ]
   }
 }
