@@ -19,7 +19,7 @@ It was designed from ground up and built with native rust for security, performa
 ### Installation
 Download the install.sh script and run
 ```sh
-curl -fsSL https://ante.run/ante-preview/install.sh | bash -s -- anen.ai/install-manifest
+curl -fsSL https://ante.run/install.sh | bash -s -- anen.ai/install-manifest
 ```
 
 ### Run as headless
