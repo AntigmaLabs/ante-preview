@@ -1,6 +1,6 @@
 ---
-title: "Configuration"
-description: "Settings, environment variables, and project configuration"
+title: "Preferences"
+description: "Settings file, environment variables, and directory structure"
 ---
 
 ## Settings file
@@ -69,19 +69,6 @@ Settings can be overridden per-session via CLI flags.
 ```
 /tmp/ante/<project-hash>/   # Temp files scoped per project
 ```
-
-## Providers
-
-Available provider identifiers for `--provider`:
-
-| ID | Provider |
-|---|---|
-| `anthropic` | Anthropic (Claude) |
-| `openai` | OpenAI (GPT) |
-| `openai-response` | OpenAI Responses API |
-| `open-router` | Open Router |
-| `xai` | Grok (xAI) |
-| `local` | Local models via llama.cpp |
 
 ## Precedence
 

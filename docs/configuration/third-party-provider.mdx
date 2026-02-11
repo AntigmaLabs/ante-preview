@@ -1,0 +1,70 @@
+---
+title: "Adding a 3rd Party Provider"
+description: "Connect Ante to third-party and custom LLM providers"
+---
+
+Ante supports connecting to third-party LLM providers beyond the built-in catalog. Any provider that exposes an OpenAI-compatible API can be used with Ante.
+
+## Using Open Router
+
+The easiest way to access third-party models is through [Open Router](https://openrouter.ai/), which provides a unified API for hundreds of models from different providers.
+
+<Steps>
+  <Step title="Get an Open Router API key">
+    Sign up at [openrouter.ai](https://openrouter.ai/) and generate an API key.
+  </Step>
+  <Step title="Set your API key">
+    ```bash
+    export OPEN_ROUTER_API_KEY="sk-or-..."
+    ```
+  </Step>
+  <Step title="Select a model">
+    Browse [Open Router's model list](https://openrouter.ai/models) and use the model identifier:
+
+    ```bash
+    ante --provider open-router --model anthropic/claude-sonnet-4-5
+    ```
+  </Step>
+</Steps>
+
+## OpenAI-compatible providers
+
+Many LLM providers expose an OpenAI-compatible API (e.g., Together AI, Fireworks, Groq Cloud, Perplexity). You can connect to these through the OpenAI provider by setting a custom base URL.
+
+<Steps>
+  <Step title="Set the base URL">
+    Point the OpenAI provider to your chosen service:
+
+    ```bash
+    export OPENAI_API_BASE="https://api.together.xyz/v1"
+    ```
+  </Step>
+  <Step title="Set your API key">
+    ```bash
+    export OPENAI_API_KEY="your-provider-api-key"
+    ```
+  </Step>
+  <Step title="Run with the OpenAI provider">
+    ```bash
+    ante --provider openai --model meta-llama/Llama-3-70b-chat-hf
+    ```
+  </Step>
+</Steps>
+
+## Local models
+
+For fully offline usage with local GGUF models via the built-in llama.cpp engine, see [Offline Mode](/offline).
+
+```bash
+ante --provider local
+```
+
+## Tips
+
+<Tip>
+When using third-party providers, make sure the model you select supports tool use (function calling). Ante relies on tool use for its agent capabilities.
+</Tip>
+
+<Warning>
+Not all models work equally well as coding agents. Models need strong instruction following and tool use support. If you experience issues, try a larger or more capable model.
+</Warning>

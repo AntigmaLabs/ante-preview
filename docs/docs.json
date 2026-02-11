@@ -68,12 +68,17 @@
             "group": "Extensibility",
             "pages": [
               "extend/skills",
-              "extend/subagents",
-              "extend/configuration"
+              "extend/subagents"
             ]
           },
-
-
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/catalog",
+              "configuration/preference",
+              "configuration/third-party-provider"
+            ]
+          },
           {
             "group": "Memory",
             "pages": ["memory"]
