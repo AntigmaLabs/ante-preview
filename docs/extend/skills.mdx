@@ -40,7 +40,10 @@ review/
 ---
 name: review
 description: Review code changes for bugs, security issues, and style. Use when the user asks for a code review.
-allowed-tools: Read Glob Grep
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
 ---
 
 Review the code at $ARGUMENTS for:
@@ -59,18 +62,23 @@ Provide a summary with specific line references.
 | Directory | Scope |
 |---|---|
 | `~/.ante/skills/` | User-level (available in all projects) |
+| `agents/skills/` | Project-level (available in this project) |
 | `.ante/skills/` | Project-level (available in this project) |
+| `.claude/skills/` | Project-level (available in this project) |
 
 ## SKILL.md frontmatter
 
-| Field | Required | Description |
-|---|---|---|
-| `name` | Yes | Unique identifier (lowercase letters, numbers, hyphens). Must match the parent directory name. |
-| `description` | Yes | What this skill does and when to use it (max 1024 chars) |
-| `allowed-tools` | No | Space-delimited list of pre-approved tools |
-| `license` | No | License name or reference to a bundled license file |
-| `compatibility` | No | Environment requirements (max 500 chars) |
-| `metadata` | No | Arbitrary key-value pairs for additional metadata |
+Every `SKILL.md` must start with a YAML frontmatter block delimited by `---`. The block can be empty, but the delimiters are required.
+
+| Field | Required | Default | Description |
+|---|---|---|---|
+| `name` | No | Parent directory name | Identifier for the skill. If omitted, the skill directory name is used. |
+| `description` | No | First paragraph of body | What this skill does and when to use it. If omitted, extracted from the first paragraph of the Markdown body. |
+| `argument-hint` | No | — | Hint text shown to the user for expected arguments (e.g. `<path>`). |
+| `user-invocable` | No | `true` | Whether the skill can be invoked by the user via slash command. Set to `false` for skills intended only for model invocation. |
+| `disable-model-invocation` | No | `false` | When `true`, prevents the model from invoking this skill automatically. |
+| `allowed-tools` | No | — | YAML list of pre-approved tools the skill can use (e.g. `Read`, `Grep`, `Bash(git diff -- *)`). |
+| `metadata` | No | — | Arbitrary key-value pairs for additional metadata. |
 
 ## Optional directories
 
@@ -90,12 +98,15 @@ my-skill/
 
 ## How skills are discovered
 
-Skills are discovered from multiple directories. **Later directories override earlier ones** if they share a skill name:
+Skills are discovered from multiple directories in precedence order. **Later directories override earlier ones** if they share a skill name:
 
-1. `~/.ante/skills/` (user-level)
-2. `.ante/skills/` (project-level)
+1. System-level (built-in skills)
+2. `~/.ante/skills/` (user-level)
+3. `agents/skills/` (project-level)
+4. `.ante/skills/` (project-level)
+5. `.claude/skills/` (project-level)
 
-A project-level skill overrides a user-level skill of the same name.
+A project-level skill overrides a user-level skill of the same name. If multiple project-level directories contain a skill with the same name, the one discovered last wins.
 
 ## Using skills
 

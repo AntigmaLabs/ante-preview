@@ -33,8 +33,8 @@ From stdin: echo `"your prompt" | ante "explain"`
 ### Run as Interactive TUI
 `ante`
 
-## Update Documentation Site
-Documentation site uses mintlify
+## Documentation Site
+Documentation site is deployed at [docs.antigma.ai](https://docs.antigma.ai) and uses mintlify.
 
 Check local change
 
