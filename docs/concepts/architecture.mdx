@@ -86,9 +86,9 @@ Tools can be filtered at session level:
 
 ## Session lifecycle
 
-1. Client sends `Op::NewSession` with model, provider, and policy
+1. Client sends `Op::StartSession` with model, provider, and policy
 2. Daemon resolves the provider, authenticates, discovers skills and sub-agents
-3. Daemon creates a `Session` and emits `Evt::SessionInit`
+3. Daemon creates a `Session` and emits `Evt::SessionStart`
 4. User sends `Op::UserInput` to start a task
 5. Session spawns a `Turn` which communicates with the LLM
 6. Turn executes tools, requests approvals, and eventually completes

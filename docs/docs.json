@@ -44,7 +44,8 @@
             "group": "Concepts",
             "pages": [
               "concepts/core-concepts",
-              "concepts/architecture"
+              "concepts/architecture",
+              "concepts/protocol"
             ]
           },
           {
