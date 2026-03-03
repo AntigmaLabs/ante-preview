@@ -42,7 +42,7 @@
           },
           {
             "group": "Using Ante",
-            "pages": ["usage/tui", "usage/headless", "offline"]
+            "pages": ["usage/tui", "usage/headless"]
           },
           {
             "group": "Configuration",
@@ -54,20 +54,32 @@
           },
           {
             "group": "Extensibility",
-            "pages": ["extend/skills", "extend/subagents", "memory"]
+            "pages": ["extend/skills", "extend/subagents", "extend/memory"]
+          },
+          {
+            "group": "Experimental",
+            "pages": [
+              {
+                "page": "offline",
+                "icon": "flask"
+              },
+              {
+                "page": "agent-org",
+                "icon": "flask"
+              }
+            ]
           },
           {
             "group": "Concepts",
             "pages": [
               "concepts/core-concepts",
               "concepts/architecture",
-              "agent-org",
               "concepts/protocol"
             ]
           },
           {
             "group": "Benchmarks",
-            "pages": ["start/eval"]
+            "pages": ["benchmarks/eval"]
           },
           {
             "group": "Reference",
