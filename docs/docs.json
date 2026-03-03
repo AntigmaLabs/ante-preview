@@ -58,16 +58,8 @@
           },
           {
             "group": "Experimental",
-            "pages": [
-              {
-                "page": "offline",
-                "icon": "flask"
-              },
-              {
-                "page": "agent-org",
-                "icon": "flask"
-              }
-            ]
+            "icon": "flask",
+            "pages": ["offline", "agent-org"]
           },
           {
             "group": "Concepts",
