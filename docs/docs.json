@@ -42,7 +42,7 @@
           },
           {
             "group": "Using Ante",
-            "pages": ["usage/tui", "usage/headless"]
+            "pages": ["usage/tui", "usage/headless", "usage/serve"]
           },
           {
             "group": "Configuration",

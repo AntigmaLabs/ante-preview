@@ -49,6 +49,13 @@ ante --provider openai --model gpt-4o -p "refactor this function"
 ante --yolo "fix all clippy warnings"
 ```
 
+### Run as a server
+
+```bash
+# Start a long-lived daemon for programmatic integration
+ante serve
+```
+
 ## What's next?
 
 <CardGroup cols={2}>
@@ -60,6 +67,9 @@ ante --yolo "fix all clippy warnings"
   </Card>
   <Card title="Offline Mode" icon="wifi-slash" href="/offline">
     Run models locally with no internet.
+  </Card>
+  <Card title="Server Mode" icon="server" href="/usage/serve">
+    Drive Ante programmatically via JSONL.
   </Card>
   <Card title="Skills" icon="scroll" href="/extend/skills">
     Extend Ante with portable Agent Skills.

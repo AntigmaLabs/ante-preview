@@ -5,21 +5,24 @@ description: "Ante — a fast, provider-agnostic AI agent that lives in your ter
 # Ante
 
 **An**other **Te**rminal — a lightweight AI agent that lives in your terminal, built by [Antigma Labs](https://antigma.ai).
+This is a pre-cursor of our mission of "building substrate for self-organizing intelligence"
 
-Ante is built from the ground up in native Rust for security, performance, and resistance to AI-generated slop. No account required — just install and go.
+Ante is built from the ground up in native Rust for security, performance, and resistance to AI-generated slop. 
+Single self-contained binary with no external dependencies.
 
 ### Why Ante?
 
-- **No account needed.** Run Ante with your own API key. No sign-up, no telemetry gate.
-- **Provider agnostic.** Anthropic, OpenAI, Gemini, Grok, Open Router, or local models — your choice.
-- **Single binary.** One `curl | sh` install. No runtimes, no dependency trees.
-- **Offline capable.** Run GGUF models locally via the built-in llama.cpp engine — no internet required.
-- **Open skills format.** Extend Ante with composable, portable skill files.
-- **Benchmark proven.** Topped the Terminal Bench leaderboard — see [Benchmarks](/benchmarks/eval).
+- **No vendor lock-in, including our own.** Run Ante with your own API key/subscription/model. No sign-up, no telemetry gate.
+- **Obessed with simplicity and quality.** We believe in the world of abundance, quality and maintain high level of trust is more valuable than ever. 
+- **Self-contained with offline mode.** We strive to close the loop between training and inference.
+- **Curated and Opinionated.** We foster a resistance to hype and noise and go double down on converged industry consensus.
+- **Benchmark proven.**  — see [Benchmarks](/benchmarks/eval).
 
 ### How it works
 
 Ante runs as an interactive agent in your terminal. You give it a task in natural language, it reasons through a plan, executes shell commands and file edits with your approval, and iterates until the job is done. Under the hood, Ante manages a structured turn lifecycle — prompt, tool calls, confirmation, execution — so the model's power is channeled through a safe, predictable loop.
+
+Ante can also run as a long-lived server (`ante serve`) that external clients drive through a structured JSONL protocol — ideal for building editor plugins, web UIs, and custom integrations.
 
 <Warning>
   Ante is currently in **preview** and under active development. Expect breaking changes, experimental features, and incomplete functionality. Currently only **macOS** and **Linux** are supported.
