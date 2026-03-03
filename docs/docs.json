@@ -38,7 +38,7 @@
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["start/overview", "start/quickstart", "start/eval"]
+            "pages": ["start/overview", "start/philosophy", "start/quickstart", "start/eval"]
           },
           {
             "group": "Concepts",
