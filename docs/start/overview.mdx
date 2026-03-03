@@ -1,22 +1,21 @@
 ---
 title: "Overview"
-description: "Ante — a fast, provider-agnostic AI agent that lives in your terminal"
+description: "Ante — self-contained agent that self-organizes"
 ---
 # Ante
 
 **An**other **Te**rminal — a lightweight AI agent that lives in your terminal, built by [Antigma Labs](https://antigma.ai).
-This is a pre-cursor of our mission of "building substrate for self-organizing intelligence"
+A precursor to our mission of "building substrate for self-organizing intelligence."
 
-Ante is built from the ground up in native Rust for security, performance, and resistance to AI-generated slop. 
-Single self-contained binary with no external dependencies.
+Ante is built from the ground up in native Rust for security, performance, and resistance to AI-generated slop — a single self-contained binary with no external dependencies.
 
 ### Why Ante?
 
-- **No vendor lock-in, including our own.** Run Ante with your own API key/subscription/model. No sign-up, no telemetry gate.
-- **Obessed with simplicity and quality.** We believe in the world of abundance, quality and maintain high level of trust is more valuable than ever. 
-- **Self-contained with offline mode.** We strive to close the loop between training and inference.
-- **Curated and Opinionated.** We foster a resistance to hype and noise and go double down on converged industry consensus.
-- **Benchmark proven.**  — see [Benchmarks](/benchmarks/eval).
+- **No vendor lock-in, including our own.** Run Ante with your own API key, subscription, or model. No sign-up, no telemetry gate.
+- **Obsessed with simplicity and quality.** In a world of abundance, maintaining quality and a high level of trust is more valuable than ever.
+- **Self-contained with [offline mode](/offline).** We strive to close the loop between training and inference.
+- **[Meta Agent Orchestration](/agent-org).** Coordinate multiple agents that self-organize around complex tasks.
+- **Benchmark proven.** See [Benchmarks](/benchmarks/eval).
 
 ### How it works
 
@@ -45,6 +44,12 @@ Ante can also run as a long-lived server (`ante serve`) that external clients dr
   </Card>
   <Card title="Core Concepts" icon="shapes" href="/concepts/core-concepts">
     Understand sessions, tasks, turns, and the protocol.
+  </Card>
+  <Card title="Offline Mode" icon="wifi-slash" href="/offline">
+    Run Ante fully offline with local models.
+  </Card>
+  <Card title="Agent Organization" icon="sitemap" href="/agent-org">
+    How Ante self-organizes agents for complex tasks.
   </Card>
   <Card title="Benchmarks" icon="chart-line" href="/benchmarks/eval">
     See how Ante performs on Terminal Bench.
