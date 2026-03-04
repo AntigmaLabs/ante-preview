@@ -3,20 +3,20 @@ title: "Tools"
 description: "Reference for all built-in tools available to the agent"
 ---
 
-Tools are the capabilities available to the agent during a session. Each tool has a name, description, input schema, and an approval requirement.
+Tools are the capabilities available to the agent during a session. Each tool has a name, description, input schema, and an approval requirement. Tools that require approval will prompt the user before executing, unless a permission rule overrides the default.
 
 ## File I/O
 
 ### Read
 
-Read file contents. Supports text files, images (PNG, JPG), PDFs, and Jupyter notebooks.
+Read file contents. Supports text files, images (PNG, JPG — auto-resized), and PDFs.
 
 - **Approval required**: No
-- **Key inputs**: `file_path` (absolute path), optional `offset` and `limit` for large files
+- **Key inputs**: `path` (absolute path), optional `offset` and `limit` for paging through large files
 
 ### Write
 
-Create or overwrite a file.
+Create or overwrite a file. Automatically creates parent directories if they don't exist.
 
 - **Approval required**: Yes
 - **Key inputs**: `file_path`, `content`
@@ -30,7 +30,7 @@ Perform exact string replacements in files. Finds `old_string` and replaces it w
 
 ### Glob
 
-Find files matching a glob pattern (e.g., `**/*.rs`, `src/**/*.ts`).
+Find files matching a glob pattern (e.g., `**/*.rs`, `src/**/*.ts`). Results are sorted by modification time and limited to 100 entries. Respects `.gitignore`.
 
 - **Approval required**: No
 - **Key inputs**: `pattern`, optional `path` (search directory)
@@ -40,59 +40,60 @@ Find files matching a glob pattern (e.g., `**/*.rs`, `src/**/*.ts`).
 Search file contents with regex patterns. Built on ripgrep.
 
 - **Approval required**: No
-- **Key inputs**: `pattern` (regex), optional `path`, `glob` filter, `type` filter, `output_mode`
+- **Key inputs**: `pattern` (regex), optional `path`, `glob` filter, `type` filter, `output_mode` (`files_with_matches` | `content` | `count`), context flags (`-A`, `-B`, `-C`), `-i` for case-insensitive, `multiline` for cross-line patterns
 
 ## Shell
 
 ### Bash
 
-Execute shell commands with optional timeout (default 2 minutes, max 10 minutes).
+Execute shell commands. Supports foreground execution with configurable timeout, and background execution by appending `&` to the command.
 
 - **Approval required**: Yes
-- **Key inputs**: `command`, optional `description`, `timeout`
+- **Key inputs**: `command`, optional `description` (short summary of what the command does), optional `timeout` (milliseconds, default 120 000, max 600 000)
+- **Background mode**: Commands ending with `&` run in the background and return a shell ID. Use BashOutput to read incremental output and KillShell to terminate.
 
 ### BashOutput
 
-Read output from a running or completed background shell.
+Read new output from a running or completed background shell.
 
 - **Approval required**: No
-- **Key inputs**: `id` (shell identifier)
+- **Key inputs**: `bash_id` (shell ID from a background Bash execution), optional `filter` (regex to filter output lines)
 
 ### KillShell
 
-Terminate a background shell process.
+Terminate a background shell process. Sends SIGTERM first, then SIGKILL if the process doesn't exit.
 
-- **Approval required**: No
-- **Key inputs**: `id` (shell identifier)
+- **Approval required**: Yes
+- **Key inputs**: `shell_id` (shell ID from a background Bash execution)
 
 ## Builtin
 
-### Task
+### Agent
 
-Spawn a sub-agent to handle complex, multi-step tasks autonomously.
+Spawn a sub-agent to handle a task autonomously. The sub-agent type determines which tools and system prompt it receives.
 
 - **Approval required**: No
-- **Key inputs**: `prompt`, `subagent_type`
+- **Key inputs**: `description` (3-5 word summary), `prompt` (full task description), `subagent_type` (which agent to use)
 
 ### TodoWrite
 
-Manage a task list for tracking progress on multi-step work.
+Track progress on multi-step work with a task list.
 
 - **Approval required**: No
-- **Key inputs**: `todos` (list of items with id, content, status)
+- **Key inputs**: `todos` — list of items, each with `content` (description), `active_form` (present-continuous label for UI), and `status` (`pending` | `in_progress` | `completed`)
 
 ### WebFetch
 
-Fetch content from a URL and process it.
+Fetch content from a URL, convert HTML to markdown, and process it with a prompt.
 
-- **Approval required**: No
-- **Key inputs**: `url`, `prompt` (what to extract)
+- **Approval required**: Yes
+- **Key inputs**: `url`, `prompt` (what to extract from the page)
 
 ### WebSearch
 
-Search the web and return results.
+Search the web and return results with citations.
 
-- **Approval required**: No
+- **Approval required**: Yes
 - **Key inputs**: `query`
 
 ## Tool filtering
