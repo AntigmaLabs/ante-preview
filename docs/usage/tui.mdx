@@ -38,6 +38,28 @@ Use the built-in selectors to switch models or providers during a session withou
 
 Ante includes a theme system for consistent styling. Choose a theme through the theme dialog.
 
+## Slash commands
+
+The TUI supports built-in slash commands for common actions:
+
+| Command | Description |
+|---|---|
+| `/clear` | Clear conversation history |
+| `/init` | Initialize codebase analysis |
+| `/exit` | Exit (aliases: `exit`, `quit`) |
+| `/theme` | Open theme selection dialog |
+| `/diff` | Show git diff (including untracked files) |
+| `/connect` | Connect to a provider (OAuth) |
+| `/model` | Open model selector |
+| `/offline-mode` | Open offline model selector |
+| `/welcome` | Show onboarding/welcome dialog |
+
+<Note>
+Some commands are "visible" (appear in conversation history) and others are "silent" (execute without adding to history). `/clear`, `/init`, and `/exit` are visible; the rest are silent.
+</Note>
+
+Skills also appear as slash commands with scope indicators: `[p]` for project-level, `[u]` for user-level, and `[s]` for system-level skills.
+
 ## Keyboard shortcuts
 
 | Key | Action |
@@ -52,7 +74,7 @@ You can customize the TUI session with flags:
 
 ```bash
 # Use a specific model
-ante --model claude-sonnet-4-5-20250514
+ante --model claude-sonnet-4-5
 
 # Use a specific provider
 ante --provider openai

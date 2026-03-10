@@ -43,7 +43,7 @@ See the [Protocol Reference](/concepts/protocol) for the complete message catalo
 ante serve &
 
 # Send a StartSession operation
-echo '{"op":{"StartSession":{"model":"claude-sonnet-4-5-20250514","provider":"anthropic","streaming":true}},"id":"op_001"}' > /proc/$!/fd/0
+echo '{"op":{"StartSession":{"model":"claude-sonnet-4-5","provider":"anthropic","streaming":true}},"id":"op_001"}' > /proc/$!/fd/0
 
 # Send user input
 echo '{"op":{"UserInput":"what is 2+2"},"id":"op_002"}' > /proc/$!/fd/0
@@ -70,7 +70,7 @@ ante.stdout.on("data", (chunk) => {
 
 // Start a session
 ante.stdin.write(JSON.stringify({
-  op: { StartSession: { model: "claude-sonnet-4-5-20250514", provider: "anthropic", streaming: true } },
+  op: { StartSession: { model: "claude-sonnet-4-5", provider: "anthropic", streaming: true } },
   id: "op_001"
 }) + "\n");
 

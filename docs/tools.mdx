@@ -96,6 +96,26 @@ Search the web and return results with citations.
 - **Approval required**: Yes
 - **Key inputs**: `query`
 
+<Note>
+WebSearch is not in the default tool set. Enable it via `--allowed-tools` or `--simple-agent` mode.
+</Note>
+
+### ImageRead
+
+Read and analyze images with a natural-language instruction.
+
+- **Approval required**: No
+- **Opt-in**: Not in the default tool set. Enable via `--allowed-tools` or `--simple-agent` mode.
+- **Key inputs**: `file_path`, `instruction`
+
+### PTY
+
+Interactive pseudoterminal for running interactive commands.
+
+- **Approval required**: No
+- **Opt-in**: Only available via `--simple-agent` or `--allowed-tools`.
+- **Key inputs**: Writes to and reads from a terminal session.
+
 ## Tool filtering
 
 Control which tools are available in a session:

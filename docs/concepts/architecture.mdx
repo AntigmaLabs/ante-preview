@@ -71,19 +71,25 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 
 | Provider | Wire Format | Models |
 |---|---|---|
-| Anthropic | Messages API | Claude family |
-| OpenAI | Chat Completions / Responses | GPT-4o, o1, etc. |
-| Gemini | Gemini API | Gemini family |
-| Grok | OpenAI-compatible | Grok models |
+| Anthropic | Messages API | Claude family (haiku-4-5, sonnet-4-5, sonnet-4-6, opus-4-6) |
+| Anthropic Subscription | Messages API | Claude family (OAuth) |
+| OpenAI | Responses API | GPT-5 family |
+| OpenAI Compatible | Chat Completions | Custom models |
+| OpenAI Subscription | Responses API | GPT-5 family (OAuth via Codex) |
+| Gemini | Gemini API | Gemini 3 family |
+| Vertex AI Gemini | Gemini API | Gemini 3 family |
+| Grok (xAI) | Responses API | Grok 4 |
+| Zai | OpenAI-compatible | GLM-4.7 |
 | Open Router | OpenAI-compatible | Multiple providers |
-| Local | llama.cpp | GGUF models |
+| Antix | OpenAI-compatible | Claude, GPT via Antigma (OAuth) |
+| Local | OpenAI-compatible | GGUF models |
 
 Providers are resolved from a catalog at session init time. The user can override via CLI flags (`--provider`, `--model`) or persistent settings.
 
 ### Authentication
 
-- **API keys** — Set via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`)
-- **OAuth** — Interactive OAuth flow supported for Anthropic and OpenAI, handled through the TUI
+- **API keys** — Set via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `OPENAI_COMPATIBLE_API_KEY`, `Z_AI_API_KEY`, `VERTEX_GEMINI_API_KEY`)
+- **OAuth** — Interactive OAuth flow supported for Anthropic, OpenAI, and Antix, handled through the TUI
 
 ## Tool system
 
@@ -108,11 +114,12 @@ pub trait Tool: Send + Sync {
 | `Grep` | File I/O | No | Search file contents with regex |
 | `Bash` | Shell | Yes | Execute shell commands |
 | `BashOutput` | Shell | No | Read output from background shells |
-| `KillShell` | Shell | No | Terminate background shells |
-| `Task` | Builtin | No | Spawn sub-agent for complex tasks |
+| `KillShell` | Shell | Yes | Terminate background shells |
+| `Agent` | Builtin | No | Spawn sub-agent for complex tasks |
 | `TodoWrite` | Builtin | No | Manage task lists |
-| `WebFetch` | Builtin | No | Fetch and process web content |
-| `WebSearch` | Builtin | No | Search the web |
+| `WebFetch` | Builtin | Yes | Fetch and process web content |
+| `WebSearch` | Builtin | Yes | Search the web |
+| `ImageRead` | Builtin | No | Read and analyze images (opt-in) |
 
 ### Tool filtering
 
@@ -120,7 +127,7 @@ Tools can be filtered at session level:
 
 - **Allowed list** (`--allowed-tools`) — Only these tools are available
 - **Disallowed list** (`--disallowed-tools`) — These tools are removed
-- Supports ToolMatcher syntax: `Bash(ls -la)`, `Task(explore)`
+- Supports ToolMatcher syntax: `Bash(ls -la)`, `Agent(explore)`
 - Names are matched case-insensitively
 
 ## Session lifecycle
@@ -140,6 +147,7 @@ Ante stores configuration and state across several locations:
 | Location | Purpose |
 |---|---|
 | `~/.ante/settings.json` | User preferences (model, provider, theme) |
+| `~/.ante/catalog.json` | Custom provider/model catalog |
 | `~/.ante/skills/` | User-level skills |
 | `~/.ante/agents/` | User-level sub-agents |
 | `.ante/` | Project-local configuration |

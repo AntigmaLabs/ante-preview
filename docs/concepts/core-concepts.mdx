@@ -73,6 +73,9 @@ Events (`Evt`) are sent from the daemon to the client, wrapped in an `EventMsg` 
 | `ToolUpdate` | `tool_use_id`, `seq`, `message` | Tool execution progress update |
 | `ToolEnd` | `tool_use_id`, `status`, `result_json`, `is_error` | Tool execution completed |
 | `UsageUpdate` | `usage` | Token usage statistics |
+| `CompactStart` | — | Dialog compaction started |
+| `CompactEnd` | — | Dialog compaction completed |
+| `ExtensionRefreshed` | `skills`, `subagents` | Skills and subagents refreshed |
 | `OfflineMode` | `OfflineModeEvt` | Offline mode events (init status, progress, ready, etc.) |
 | `Info` | `String` | Informational message |
 | `Error` | `String` | Error message |

@@ -9,7 +9,7 @@ Ante stores user preferences in `~/.ante/settings.json`:
 
 ```json
 {
-  "model": "claude-sonnet-4-5-20250514",
+  "model": "claude-sonnet-4-5",
   "provider": "anthropic",
   "theme": "default",
   "policy": "default",
@@ -33,6 +33,14 @@ Settings can be overridden per-session via CLI flags.
 |---|---|
 | `ANTHROPIC_API_KEY` | API key for Anthropic (Claude) |
 | `OPENAI_API_KEY` | API key for OpenAI |
+| `OPENAI_COMPATIBLE_API_KEY` | API key for OpenAI-compatible providers |
+| `GEMINI_API_KEY` | API key for Google Gemini |
+| `VERTEX_GEMINI_API_KEY` | API key for Vertex AI Gemini |
+| `XAI_API_KEY` | API key for Grok (xAI) |
+| `OPENROUTER_API_KEY` | API key for Open Router |
+| `Z_AI_API_KEY` | API key for Zai |
+| `MODEL_BASE_URL` | Override the base URL for any provider |
+| `ANTE_LOCAL_PROVIDER_PORT` | Override the local provider port (default: 8080) |
 | `ANTE_HOME` | Override the home config directory (default: `~/.ante`) |
 | `ANTE_DISABLE_STREAMING` | Disable streaming responses in TUI mode |
 
@@ -43,15 +51,22 @@ Settings can be overridden per-session via CLI flags.
 ```
 ~/.ante/
 ├── settings.json      # User preferences
+├── catalog.json       # Custom provider/model catalog
 ├── skills/            # User-level skills
 └── agents/            # User-level sub-agents
 ```
 
-### Project-level (`.ante/`)
+### Project-level
 
 ```
 .ante/
 └── skills/            # Project-specific skills
+
+.agents/
+└── skills/            # Project-specific skills
+
+.claude/
+└── skills/            # Project-specific skills (Claude Code compatibility)
 ```
 
 ### Project memory (`.ante/projects/`)

@@ -71,11 +71,11 @@ When a session starts, Ante builds rules from tool metadata. Tools marked `requi
 | `Glob` | Allow |
 | `Grep` | Allow |
 | `BashOutput` | Allow |
-| `KillShell` | Allow |
-| `Task` | Allow |
+| `KillShell` | Ask |
+| `Agent` | Allow |
 | `TodoWrite` | Allow |
-| `WebFetch` | Allow |
-| `WebSearch` | Allow |
+| `WebFetch` | Ask |
+| `WebSearch` | Ask |
 
 ### Session-level overrides
 
@@ -92,7 +92,7 @@ Matches **any** invocation of a tool by name (case-insensitive):
 ```
 Bash
 Write
-Task
+Agent
 ```
 
 ### Specifier matcher
@@ -102,7 +102,7 @@ Matches a tool **only when** its primary argument matches a glob pattern:
 ```
 Bash(cargo test *)
 Bash(npm run *)
-Task(explore)
+Agent(explore)
 ```
 
 The syntax is `ToolName(glob-pattern)`. The glob is matched against the tool's primary argument:
@@ -110,7 +110,7 @@ The syntax is `ToolName(glob-pattern)`. The glob is matched against the tool's p
 | Tool | Primary argument |
 |---|---|
 | `Bash` | `command` |
-| `Task` | `subagent_type` |
+| `Agent` | `subagent_type` |
 
 For other tools, only the simple (name-only) matcher is supported.
 

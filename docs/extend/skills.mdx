@@ -57,13 +57,18 @@ See [checklist](references/checklist.md) for the full review checklist.
 Provide a summary with specific line references.
 ```
 
+<Note>
+The `allowed-tools` field also accepts a comma-separated string (`"Read, Glob, Grep"`) or a space-separated string (`"Read Glob Grep"`) in addition to the YAML array format.
+</Note>
+
 ## Skill directories
 
 | Directory | Scope |
 |---|---|
 | `~/.ante/skills/` | User-level (available in all projects) |
-| `agents/skills/` | Project-level (available in this project) |
+| `.agents/skills/` | Project-level (available in this project) |
 | `.ante/skills/` | Project-level (available in this project) |
+| `.claude/skills/` | Project-level (for Claude Code compatibility) |
 
 ## SKILL.md frontmatter
 
@@ -101,8 +106,9 @@ Skills are discovered from multiple directories in precedence order. **Later dir
 
 1. System-level (built-in skills)
 2. `~/.ante/skills/` (user-level)
-3. `agents/skills/` (project-level)
+3. `.agents/skills/` (project-level)
 4. `.ante/skills/` (project-level)
+5. `.claude/skills/` (project-level, for Claude Code compatibility)
 
 A project-level skill overrides a user-level skill of the same name. If multiple project-level directories contain a skill with the same name, the one discovered last wins.
 

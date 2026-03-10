@@ -18,7 +18,7 @@ Every operation is wrapped in an `OpMsg`:
 
 ```json
 {
-  "op": { "StartSession": { "model": "claude-sonnet-4-5-20250514", "provider": "anthropic", "streaming": true } },
+  "op": { "StartSession": { "model": "claude-sonnet-4-5", "provider": "anthropic", "streaming": true } },
   "id": "op_01ARZ3NDEKTSV4RRFFQ69G5FAV"
 }
 ```
@@ -61,7 +61,7 @@ Initialize a new session with model, provider, and configuration.
 {
   "op": {
     "StartSession": {
-      "model": "claude-sonnet-4-5-20250514",
+      "model": "claude-sonnet-4-5",
       "provider": "anthropic",
       "policy": null,
       "streaming": true,
@@ -80,7 +80,7 @@ Initialize a new session with model, provider, and configuration.
 
 | Field | Type | Description |
 |---|---|---|
-| `model` | `string` | Model name (e.g. `"claude-sonnet-4-5-20250514"`) |
+| `model` | `string` | Model name (e.g. `"claude-sonnet-4-5"`) |
 | `provider` | `string` | Provider name (e.g. `"anthropic"`, `"openai"`, `"gemini"`) |
 | `policy` | `Policy?` | Tool approval policy. `null` uses default |
 | `streaming` | `bool` | Enable streaming deltas (`MessageDelta`, `ThinkingDelta`) |
@@ -170,7 +170,7 @@ Emitted when a session is initialized. Contains metadata about the active model,
 {
   "event": {
     "SessionStart": {
-      "model": { "name": "claude-sonnet-4-5-20250514", "max_tokens": 8192 },
+      "model": { "name": "claude-sonnet-4-5", "max_tokens": 8192 },
       "provider": "Anthropic",
       "session_id": "ses_01ARZ...",
       "cwd": "/home/user/project",
@@ -358,6 +358,45 @@ Emitted when a tool execution completes.
 | `Denied` | Tool was denied by the user |
 | `Failed` | Tool execution failed |
 
+### Compaction events
+
+#### CompactStart
+
+Emitted when dialog compaction begins.
+
+```json
+{ "event": "CompactStart" }
+```
+
+#### CompactEnd
+
+Emitted when dialog compaction completes.
+
+```json
+{ "event": "CompactEnd" }
+```
+
+### Extension events
+
+#### ExtensionRefreshed
+
+Emitted when skills and subagents are refreshed.
+
+```json
+{
+  "event": {
+    "ExtensionRefreshed": {
+      "skills": [
+        { "name": "commit", "description": "Create a git commit", "scope": "User" }
+      ],
+      "subagents": [
+        { "name": "explore", "description": "Explore the codebase" }
+      ]
+    }
+  }
+}
+```
+
 ### Informational events
 
 #### UsageUpdate
@@ -406,8 +445,10 @@ Operations for managing local/offline models.
 |---|---|---|
 | `Init` | — | Check llama.cpp status and discover local models |
 | `InstallEngine` | — | Download and install llama.cpp |
+| `UpgradeEngine` | — | Upgrade llama.cpp to a newer version |
 | `SetModelDirectory` | `path: string` | Set the local models directory |
 | `LoadModel` | `model: OfflineModel`, `prefs: ModelPreferences` | Load an offline model with preferences |
+| `AttachServer` | `port: u16`, `model_name: string` | Attach to a running llama server on a local port |
 | `StopServer` | — | Stop the offline inference server |
 
 ### OfflineModeEvt
