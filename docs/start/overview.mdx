@@ -9,9 +9,22 @@ A precursor to our mission of "building substrate for self-organizing intelligen
 
 Ante is built from the ground up in native Rust for security, performance, and resistance to AI-generated slop — a single self-contained binary with no external dependencies.
 
+### Key features
+
+<CardGroup cols={3}>
+  <Card title="Lightweight agent core" icon="feather">
+    A single ~15MB binary with zero runtime dependencies. The agent core is built for minimal overhead and maximum throughput — making it the ideal runtime for orchestrating agent swarms at scale.
+  </Card>
+  <Card title="Native local models" icon="microchip">
+    Run models entirely on your machine with built-in llama.cpp integration. No API keys, no internet, no data leaving your device. Ante handles engine installation, model discovery, and memory management automatically.
+  </Card>
+  <Card title="Zero vendor lock-in" icon="lock-open">
+    Bring your own API key, subscription, or local model. Switch between 12+ providers freely — Anthropic, OpenAI, Gemini, Grok, Open Router, and more. No account required, no telemetry gate, no walled garden. Not even ours.
+  </Card>
+</CardGroup>
+
 ### Why Ante?
 
-- **No vendor lock-in, including our own.** Run Ante with your own API key, subscription, or model. No sign-up, no telemetry gate.
 - **Obsessed with simplicity and quality.** In a world of abundance, maintaining quality and a high level of trust is more valuable than ever.
 - **Self-contained with [offline mode](/offline).** We strive to close the loop between training and inference.
 - **[Meta Agent Orchestration](/agent-org).** Coordinate multiple agents that self-organize around complex tasks.
