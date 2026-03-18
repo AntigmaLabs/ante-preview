@@ -1,0 +1,13 @@
+[package]
+name = "ante-protocol"
+version = "0.1.0"
+edition = "2024"
+description = "Protocol DTOs and wire messages for Ante"
+license = "Apache-2.0"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ulid = "1.2"
