@@ -40,20 +40,54 @@ ante
 ### Headless Mode
 
 ```sh
-# Positional prompt
-ante -p "your prompt"
+# Fix a bug
+ante "find and fix the failing test in src/auth"
 
-# With model/provider overrides
-ante --model gpt-4o-mini --provider openai "your prompt"
+# Review a diff
+git diff | ante "review this for security issues"
 
-# From stdin
-echo "your prompt" | ante "explain"
+# Use a different provider
+ante --provider openai --model gpt-5.4 "refactor the database module"
+
+# Run fully offline with a local model
+ante --provider local "add error handling to src/main.rs"
 ```
 
 ### Server Mode
 
 ```sh
 ante serve
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Clients                             │
+│                                                             │
+│   ┌───────────┐    ┌───────────┐    ┌────────────────────┐  │
+│   │    TUI    │    │ Headless  │    │    ante serve      │  │
+│   │  (ante)   │    │ (ante -p) │    │  (stdio / ws)      │  │
+│   └─────┬─────┘    └─────┬─────┘    └─────────┬──────────┘  │
+└─────────┼────────────────┼─────────────────────┼────────────┘
+          │     Op         │                     │
+          ▼                ▼                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│                         Daemon                              │
+│                                                             │
+│   Session ──▶ Turn ──▶ Step                                 │
+│                                                             │
+│   ┌──────────┐  ┌──────────────┐  ┌───────────────────┐    │
+│   │  Tools   │  │  Permission  │  │  Skills / Agents  │    │
+│   └──────────┘  └──────────────┘  └───────────────────┘    │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     LLM Providers                           │
+│                                                             │
+│   Anthropic · OpenAI · Gemini · Grok · Open Router · Local  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Supported Providers
