@@ -21,6 +21,16 @@ Ante is an AI-native, cloud-native, local-first agent runtime built by [Antigma 
 - **Extensible** — Custom skills, sub-agents, and persistent memory across sessions.
 - **Benchmark proven** — Topped the Terminal Bench 1.0 and 2.0 leaderboards. Public, reproducible evals.
 
+## Performance
+
+Ante is built for scale. Its lightweight Rust core uses a fraction of the memory and disk I/O of comparable agents, completing the same coding tasks with dramatically lower overhead — making it practical to run hundreds of parallel agents on a single machine.
+
+Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode):
+
+![Resource Usage Comparison](docs/assets/compare_animated.gif)
+
+Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. That efficiency is what makes it practical to run hundreds of agents in parallel at scale. See the [full comparison table](docs/assets/compare_table.md) for detailed CPU, memory, disk, and I/O metrics.
+
 ## Quick Start
 
 ### Installation
@@ -41,16 +51,16 @@ ante
 
 ```sh
 # Fix a bug
-ante "find and fix the failing test in src/auth"
+ante -p "find and fix the failing test in src/auth"
 
 # Review a diff
-git diff | ante "review this for security issues"
+git diff | ante -p "review this for security issues"
 
 # Use a different provider
-ante --provider openai --model gpt-5.4 "refactor the database module"
+ante --provider openai --model gpt-5.4 -p "refactor the database module"
 
 # Run fully offline with a local model
-ante --provider local "add error handling to src/main.rs"
+ante --provider local -p "add error handling to src/main.rs"
 ```
 
 ### Server Mode
@@ -132,6 +142,8 @@ Server mode runs Ante as a long-lived daemon that communicates over a structured
 ### How does Ante compare to other AI coding agents?
 
 Ante is built from scratch in native Rust — not a wrapper around an SDK or framework. Key differentiators: ~15MB self-contained binary, client-daemon architecture, native local model support, zero vendor lock-in, and multi-agent orchestration. It's designed for the "cellular-native" thesis — agents lightweight enough to run thousands of replicas at scale.
+
+See the [resource usage comparison](docs/assets/compare_table.md) across 20 parallel tasks for concrete numbers.
 
 ### How do I configure Ante?
 

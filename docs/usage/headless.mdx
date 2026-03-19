@@ -7,13 +7,13 @@ Headless mode runs Ante without the TUI — it processes a prompt, executes the 
 
 ## Basic usage
 
-Provide a prompt as an argument:
+Use the `-p` / `--prompt` flag to pass a prompt:
 
 ```bash
-ante "explain what this project does"
+ante -p "explain what this project does"
 ```
 
-Or via the `-p` / `--prompt` flag:
+Or with the long form:
 
 ```bash
 ante --prompt "add tests for the auth module"
@@ -24,13 +24,13 @@ ante --prompt "add tests for the auth module"
 Pipe content from stdin:
 
 ```bash
-cat src/main.rs | ante "review this code for bugs"
+cat src/main.rs | ante -p "review this code for bugs"
 ```
 
-Combine stdin with a prompt argument:
+Combine stdin with a prompt:
 
 ```bash
-echo "function add(a, b) { return a + b }" | ante "add TypeScript types"
+echo "function add(a, b) { return a + b }" | ante -p "add TypeScript types"
 ```
 
 When both stdin and a prompt argument are provided, they are concatenated (stdin first, then the prompt).
@@ -61,7 +61,7 @@ ante [OPTIONS] [--prompt <PROMPT>]
 Shows only agent messages, info, and errors:
 
 ```bash
-ante "what does this project do"
+ante -p "what does this project do"
 ```
 
 ### Human
@@ -69,7 +69,7 @@ ante "what does this project do"
 Shows all events in a human-readable format with ANSI colors:
 
 ```bash
-ante --output-format human "fix the type error in main.rs"
+ante --output-format human -p "fix the type error in main.rs"
 ```
 
 ### JSON
@@ -77,7 +77,7 @@ ante --output-format human "fix the type error in main.rs"
 Outputs every event as a JSON object (one per line), suitable for machine consumption:
 
 ```bash
-ante --output-format json "list all TODO comments" | jq '.event'
+ante --output-format json -p "list all TODO comments" | jq '.event'
 ```
 
 ## Verification check
@@ -85,7 +85,7 @@ ante --output-format json "list all TODO comments" | jq '.event'
 The `--check` flag runs a second pass after the main task, asking the agent to review its own work:
 
 ```bash
-ante --check "refactor the auth module to use async/await"
+ante --check -p "refactor the auth module to use async/await"
 ```
 
 The verification pass will:
@@ -108,14 +108,14 @@ In headless mode, Ante automatically appends the current directory's folder stru
 ### CI: lint and fix
 
 ```bash
-ante --yolo "run cargo clippy and fix all warnings"
+ante --yolo -p "run cargo clippy and fix all warnings"
 ```
 
 ### Code generation
 
 ```bash
 ante --model claude-sonnet-4-5 --check \
-  "add comprehensive unit tests for src/core/session.rs"
+  -p "add comprehensive unit tests for src/core/session.rs"
 ```
 
 ### Restricted tools
@@ -123,11 +123,11 @@ ante --model claude-sonnet-4-5 --check \
 ```bash
 # Read-only analysis — no file writes or shell access
 ante --allowed-tools Read Glob Grep \
-  "analyze the codebase architecture and summarize it"
+  -p "analyze the codebase architecture and summarize it"
 ```
 
 ### Pipe a diff for review
 
 ```bash
-git diff HEAD~1 | ante "review this diff for bugs and security issues"
+git diff HEAD~1 | ante -p "review this diff for bugs and security issues"
 ```
