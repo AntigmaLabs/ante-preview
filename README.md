@@ -27,7 +27,7 @@ Ante is built for scale. Its lightweight Rust core uses a fraction of the memory
 
 Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode):
 
-![Resource Usage Comparison](docs/assets/compare_animated.gif)
+![Resource Usage Comparison](assets/compare_animated.gif)
 
 Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. That efficiency is what makes it practical to run hundreds of agents in parallel at scale. See the [full comparison table](docs/assets/compare_table.md) for detailed CPU, memory, disk, and I/O metrics.
 
@@ -118,40 +118,55 @@ Configure providers via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_
 
 ## FAQ
 
-### Does Ante require an account or login?
+<details>
+<summary><b>Does Ante require an account or login?</b></summary>
 
 No. Ante has zero vendor lock-in — you can use it with just an API key from any supported provider, or run fully offline with local models. No Antigma account is needed.
+</details>
 
-### Does Ante support Windows?
+<details>
+<summary><b>Does Ante support Windows?</b></summary>
 
 Not yet. Ante currently supports macOS and Linux only. Windows support may come in the future.
+</details>
 
-### Can I run Ante completely offline?
+<details>
+<summary><b>Can I run Ante completely offline?</b></summary>
 
 Yes. Ante has a built-in llama.cpp engine that runs GGUF models locally. It handles engine installation, model discovery, and memory management automatically. No API keys or internet connection required.
+</details>
 
-
-### Can I use my own custom models or providers?
+<details>
+<summary><b>Can I use my own custom models or providers?</b></summary>
 
 Yes. Create a `~/.ante/catalog.json` file to add or override providers and models with custom endpoints, API keys, and configurations. Any OpenAI-compatible API works.
+</details>
 
-### What is the `ante serve` mode for?
+<details>
+<summary><b>What is the <code>ante serve</code> mode for?</b></summary>
 
 Server mode runs Ante as a long-lived daemon that communicates over a structured JSONL protocol. It's ideal for building editor plugins, web UIs, and custom integrations on top of Ante.
+</details>
 
-### How does Ante compare to other AI coding agents?
+<details>
+<summary><b>How does Ante compare to other AI coding agents?</b></summary>
 
 Ante is built from scratch in native Rust — not a wrapper around an SDK or framework. Key differentiators: ~15MB self-contained binary, client-daemon architecture, native local model support, zero vendor lock-in, and multi-agent orchestration. It's designed for the "cellular-native" thesis — agents lightweight enough to run thousands of replicas at scale.
 
 See the [resource usage comparison](docs/assets/compare_table.md) across 20 parallel tasks for concrete numbers.
+</details>
 
-### How do I configure Ante?
+<details>
+<summary><b>How do I configure Ante?</b></summary>
 
 Settings live in `~/.ante/settings.json`. You can set your default model, provider, theme, and permission policy. CLI flags override settings for individual sessions. See the [configuration docs](https://docs.antigma.ai/configuration/preference) for details.
+</details>
 
-### Can I extend Ante with custom skills or sub-agents?
+<details>
+<summary><b>Can I extend Ante with custom skills or sub-agents?</b></summary>
 
 Yes. Drop skill files in `~/.ante/skills/` (user-level) or `.ante/skills/` (project-level) using the Open Agent Skills format. Custom sub-agents go in `~/.ante/agents/` with their own prompts, tool sets, and model overrides.
+</details>
 
 ## Documentation
 
