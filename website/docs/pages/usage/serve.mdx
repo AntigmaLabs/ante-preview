@@ -1,0 +1,116 @@
+---
+title: "ante serve"
+description: "Run Ante as a long-lived server for programmatic integration"
+---
+
+Server mode runs Ante as a long-lived daemon that external clients can drive through a structured message protocol. This is ideal for building editor integrations, web UIs, or any programmatic workflow that needs to control Ante over time.
+
+## Basic usage
+
+```bash
+ante serve
+```
+
+This starts the daemon and bridges the [JSONL protocol](/concepts/protocol) over stdin/stdout. The process stays alive until the client sends a `Shutdown` operation or closes stdin.
+
+### Stdio transport (default)
+
+```bash
+ante serve --stdio
+```
+
+The `--stdio` flag is optional — stdio is the default transport. The daemon reads `OpMsg` JSON objects from stdin and writes `EventMsg` JSON objects to stdout, one per line.
+
+### WebSocket transport
+
+```bash
+ante serve --ws 127.0.0.1:8080
+```
+
+The `--ws` flag starts a WebSocket server on the given address. Clients connect and exchange the same JSONL protocol over WebSocket frames. Each connection gets its own daemon instance. The server loops accepting new connections until a client sends a `Shutdown` operation.
+
+:::note
+`--stdio` and `--ws` are mutually exclusive — you cannot use both at the same time.
+:::
+
+## How it works
+
+1. The daemon starts and waits for operations on stdin
+2. Send a `StartSession` operation to initialize a session with your chosen model and provider
+3. Send `UserInput` operations to submit prompts
+4. Receive streaming events — thinking deltas, message deltas, tool calls, approvals — on stdout
+5. Respond to `TurnPause` events with `ApprovalResponse` to approve or deny tool calls
+6. Send `Shutdown` (or close stdin) to gracefully stop the daemon
+
+See the [Protocol Reference](/concepts/protocol) for the complete message catalog and wire format.
+
+## Example session
+
+```bash
+# Start the server
+ante serve &
+
+# Send a StartSession operation
+echo '{"op":{"StartSession":{"model":"claude-sonnet-4-5","provider":"anthropic","streaming":true}},"id":"op_001"}' > /proc/$!/fd/0
+
+# Send user input
+echo '{"op":{"UserInput":"what is 2+2"},"id":"op_002"}' > /proc/$!/fd/0
+```
+
+In practice, you'd use a proper JSONL client that reads and writes to the process's stdin/stdout pipes. Here's a minimal Node.js example:
+
+```javascript
+const { spawn } = require("child_process");
+
+const ante = spawn("ante", ["serve"]);
+let buffer = "";
+
+ante.stdout.on("data", (chunk) => {
+  buffer += chunk.toString();
+  const lines = buffer.split("\n");
+  buffer = lines.pop();
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const event = JSON.parse(line);
+    console.log("Event:", event.event);
+  }
+});
+
+// Start a session
+ante.stdin.write(JSON.stringify({
+  op: { StartSession: { model: "claude-sonnet-4-5", provider: "anthropic", streaming: true } },
+  id: "op_001"
+}) + "\n");
+
+// Send a prompt
+ante.stdin.write(JSON.stringify({
+  op: { UserInput: "explain what this project does" },
+  id: "op_002"
+}) + "\n");
+```
+
+## Differences from headless mode
+
+| | Headless | Server |
+|---|---|---|
+| **Lifetime** | Single prompt, then exits | Long-lived, multiple interactions |
+| **Input** | CLI argument or stdin pipe | Structured JSONL operations |
+| **Output** | Formatted text (minimal/human/json) | Raw protocol events (JSONL) |
+| **Transport** | N/A | Stdio (default) or WebSocket (`--ws`) |
+| **Sessions** | Implicit — one per invocation | Explicit — client sends `StartSession` |
+| **Tool approval** | Auto-approved (yolo implied) | Client must respond to `TurnPause` events |
+
+## CLI reference
+
+```
+ante serve [OPTIONS]
+```
+
+| Flag | Description |
+|---|---|
+| `--stdio` | Use JSONL over stdin/stdout (default) |
+| `--ws <ADDR>` | Serve the protocol over WebSocket on the given socket address (e.g. `127.0.0.1:8080`) |
+
+:::note
+The `--prompt` flag cannot be used with `ante serve`. Use `UserInput` operations instead.
+:::

@@ -1,0 +1,13 @@
+---
+title: Ante
+description: ai-native, cloud-native, local-first agent runtime
+---
+
+import { useEffect } from 'react'
+
+export function Redirect() {
+  useEffect(() => { window.location.replace('/start/overview') }, [])
+  return <p>Redirecting to <a href="/start/overview">Overview</a>...</p>
+}
+
+<Redirect />

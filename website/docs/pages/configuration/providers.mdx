@@ -1,0 +1,251 @@
+---
+title: "Providers"
+description: "Pick and configure your model provider"
+---
+
+import { Steps } from 'vocs/components'
+
+Ante is provider-agnostic. Each provider implements a common interface for sending prompts and receiving streaming responses. Providers are resolved from a catalog at session init time.
+
+## Built-in providers
+
+| Provider | Wire Format | Models |
+|---|---|---|
+| Anthropic | Messages API | Claude family (haiku-4-5, sonnet-4-5, sonnet-4-6, opus-4-6) |
+| Anthropic Subscription | Messages API | Claude family (OAuth) |
+| OpenAI | Responses API | GPT-5 family |
+| OpenAI Compatible | Chat Completions | Custom models |
+| OpenAI Subscription | Responses API | GPT-5 family (OAuth via Codex) |
+| Gemini | Gemini API | Gemini 3 family |
+| Vertex AI Gemini | Gemini API | Gemini 3 family |
+| Grok (xAI) | Responses API | Grok 4 |
+| Zai | OpenAI-compatible | GLM-4.7 |
+| Open Router | OpenAI-compatible | Multiple providers |
+| Antix | OpenAI-compatible | Claude, GPT via Antigma (OAuth) |
+| Local | OpenAI-compatible | GGUF models |
+
+### Provider identifiers
+
+Use these identifiers with `--provider` or in your settings file:
+
+| ID | Provider |
+|---|---|
+| `anthropic` | Anthropic (Claude) |
+| `anthropic-subscription` | Anthropic Subscription (Pro/Max) |
+| `openai` | OpenAI (GPT) |
+| `openai-compatible` | OpenAI Compatible |
+| `openai-subscription` | OpenAI Subscription |
+| `gemini` | Google Gemini |
+| `vertex-gemini` | Vertex AI Gemini |
+| `openrouter` | Open Router |
+| `xai` | Grok (xAI) |
+| `zai` | Zai |
+| `antix` | Antix |
+| `local` | Local models via llama.cpp |
+
+## Selecting a provider
+
+You can set your provider in three ways (in order of precedence):
+
+1. **CLI flag** — `ante --provider anthropic --model claude-sonnet-4-5`
+2. **Settings file** — Set `provider` and `model` in `~/.ante/settings.json`
+3. **Built-in default** — Anthropic with Claude Sonnet
+
+## Authentication
+
+Each provider requires its own authentication method:
+
+| Provider | Auth Method |
+|---|---|
+| Anthropic | `ANTHROPIC_API_KEY` env var or OAuth |
+| Anthropic Subscription | OAuth |
+| OpenAI | `OPENAI_API_KEY` env var or OAuth |
+| OpenAI Compatible | `OPENAI_COMPATIBLE_API_KEY` env var |
+| OpenAI Subscription | OAuth |
+| Gemini | `GEMINI_API_KEY` env var |
+| Vertex AI Gemini | `VERTEX_GEMINI_API_KEY` env var |
+| Grok | `XAI_API_KEY` env var |
+| Zai | `Z_AI_API_KEY` env var |
+| Open Router | `OPENROUTER_API_KEY` env var |
+| Antix | OAuth |
+| Local | No authentication needed |
+
+:::tip
+Anthropic, OpenAI, and Antix also support interactive OAuth flows through the TUI.
+:::
+
+## Model details
+
+### Anthropic (Claude)
+
+The default provider. Supports the full Claude model family through the Messages API.
+
+```bash
+ante --provider anthropic --model claude-sonnet-4-5
+```
+
+Available models: `claude-haiku-4-5`, `claude-sonnet-4-5`, `claude-sonnet-4-6`, `claude-opus-4-6`
+
+### OpenAI
+
+Supports GPT models through the Responses API.
+
+```bash
+ante --provider openai --model gpt-5.4
+```
+
+Available models: `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.3-codex`, `gpt-5-mini`, `gpt-5-nano`
+
+### Google Gemini
+
+Supports Gemini models through the Gemini API.
+
+```bash
+ante --provider gemini --model gemini-3-flash-preview
+```
+
+Available models: `gemini-3-flash-preview`, `gemini-3.1-pro-preview`
+
+### Vertex AI Gemini
+
+Access Gemini models through Google Cloud's Vertex AI.
+
+```bash
+ante --provider vertex-gemini --model gemini-3-flash-preview
+```
+
+### Grok (xAI)
+
+Uses the Responses API wire format.
+
+```bash
+ante --provider xai --model grok-4-latest
+```
+
+### Zai
+
+Access GLM models through the Zai API.
+
+```bash
+ante --provider zai --model glm-4.7
+```
+
+### Open Router
+
+Access multiple providers through a single API via [Open Router](https://openrouter.ai/).
+
+```bash
+ante --provider openrouter --model deepseek/deepseek-reasoner
+```
+
+### Antix
+
+Access Claude and GPT models through Antigma's platform via OAuth.
+
+```bash
+ante --provider antix --model claude-sonnet-4-5
+```
+
+### Local models
+
+Run GGUF models locally via the built-in llama.cpp engine. No API keys or internet required. See [Offline Mode](/offline) for setup details.
+
+```bash
+ante --provider local
+```
+
+## Standalone models
+
+The catalog includes pre-configured model specs for popular models that don't have a dedicated provider. These can be used with the `openai-compatible` provider or Open Router:
+
+| Model | Description | Context |
+|---|---|---|
+| `qwen3.5-plus` | Most powerful Qwen visual model | 1M |
+| `qwen-plus` | Fast and capable | 1M |
+| `kimi-k2.5` | Kimi K2.5 reasoning model | 262K |
+| `MiniMax-M2.5` | MiniMax M2.5 model | 200K |
+
+## Custom catalog
+
+Users can create `~/.ante/catalog.json` to add or override providers and models. The custom catalog is merged on top of the built-in catalog at startup.
+
+```json
+{
+  "providers": {
+    "my-provider": {
+      "name": "my-provider",
+      "display_name": "My Provider",
+      "base_url": "https://api.example.com/v1",
+      "auth": { "bearer": { "env_key": "MY_PROVIDER_API_KEY" } },
+      "wire_style": "OpenAiCompatible"
+    }
+  },
+  "models": {
+    "my-model": {
+      "name": "my-model",
+      "description": "Custom model",
+      "max_tokens": 32000,
+      "context_limit": 200000,
+      "thinking": "Enabled"
+    }
+  }
+}
+```
+
+Supported wire styles: `AnthropicMessage`, `OpenAiCompatible`, `OpenAiResponse`, `Gemini`.
+
+Supported thinking modes: `Disabled`, `Enabled`, `Deep`, `Max`.
+
+## Third-party & custom providers
+
+### Using Open Router
+
+The easiest way to access third-party models is through [Open Router](https://openrouter.ai/), which provides a unified API for hundreds of models from different providers.
+
+<Steps>
+  ### Get an Open Router API key
+  Sign up at [openrouter.ai](https://openrouter.ai/) and generate an API key.
+
+  ### Set your API key
+  ```bash
+  export OPENROUTER_API_KEY="sk-or-..."
+  ```
+
+  ### Select a model
+  Browse [Open Router's model list](https://openrouter.ai/models) and use the model identifier:
+
+  ```bash
+  ante --provider openrouter --model deepseek/deepseek-reasoner
+  ```
+</Steps>
+
+### OpenAI-compatible providers
+
+Many LLM providers expose an OpenAI-compatible API (e.g., Together AI, Fireworks, Groq Cloud, Perplexity). You can connect to these through the `openai-compatible` provider by setting a custom base URL.
+
+<Steps>
+  ### Set the base URL
+  Point the OpenAI Compatible provider to your chosen service:
+
+  ```bash
+  export MODEL_BASE_URL="https://api.together.xyz/v1"
+  ```
+
+  ### Set your API key
+  ```bash
+  export OPENAI_COMPATIBLE_API_KEY="your-provider-api-key"
+  ```
+
+  ### Run with the OpenAI Compatible provider
+  ```bash
+  ante --provider openai-compatible --model meta-llama/Llama-3-70b-chat-hf
+  ```
+</Steps>
+
+:::tip
+When using third-party providers, make sure the model you select supports tool use (function calling). Ante relies on tool use for its agent capabilities.
+:::
+
+:::warning
+Not all models work equally well as coding agents. Models need strong instruction following and tool use support. If you experience issues, try a larger or more capable model.
+:::

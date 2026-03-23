@@ -1,0 +1,81 @@
+---
+title: "Quickstart"
+description: "Install Ante and start using it in under a minute"
+---
+
+import { Card, CardGroup } from '~/components/Card'
+
+## Prerequisites
+
+- An API key or subscription from at least one LLM provider (Anthropic, OpenAI, etc.) — or use [offline mode](/offline) with no API key
+
+## Installation
+Ante is distributed as a single, self-contained binary with no external dependencies — just download and run.
+
+```sh
+curl -fsSL https://ante.run/install.sh | bash
+```
+
+## Quick examples
+
+### Interactive session
+
+```bash
+# Launch the TUI — chat with the agent, approve tool calls, view diffs
+ante
+```
+
+### Headless one-shot
+
+```bash
+# Run a task and exit
+ante -p "add error handling to src/main.rs"
+```
+
+### Pipe input from stdin
+
+```bash
+# Pipe file contents for analysis
+cat src/lib.rs | ante -p "review this code for bugs"
+```
+
+### Use a different provider
+
+```bash
+# Override model and provider
+ante --provider openai --model gpt-5.4 -p "refactor this function"
+```
+
+### Skip tool approvals
+
+```bash
+# YOLO mode — auto-approve all tool calls
+ante --yolo "fix all clippy warnings"
+```
+
+### Run as a server
+
+```bash
+# Start a long-lived daemon for programmatic integration
+ante serve
+```
+
+## What's next?
+
+<CardGroup cols={2}>
+  <Card title="TUI Guide" href="/usage/tui">
+    Master the interactive terminal interface.
+  </Card>
+  <Card title="Headless Mode" href="/usage/headless">
+    All CLI flags and output formats.
+  </Card>
+  <Card title="Offline Mode" href="/offline">
+    Run models locally with no internet.
+  </Card>
+  <Card title="Server Mode" href="/usage/serve">
+    Drive Ante programmatically via JSONL.
+  </Card>
+  <Card title="Skills" href="/extend/skills">
+    Extend Ante with portable Agent Skills.
+  </Card>
+</CardGroup>
