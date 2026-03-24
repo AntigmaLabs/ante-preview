@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "vocs dev",
-    "build": "npx playwright install --with-deps chromium && vocs build",
+    "build": "vocs build",
     "preview": "vocs preview"
   },
   "dependencies": {
