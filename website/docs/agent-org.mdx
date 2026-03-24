@@ -1,0 +1,187 @@
+---
+title: "Agent Organization (Experimental)"
+description: "Multi-agent architecture patterns for orchestrating collaborative AI agents"
+---
+
+Ante supports multiple patterns for organizing agents to work together. Each architecture trades off between autonomy, coordination overhead, and result quality.
+
+## Independent
+
+Agents work in parallel on the same problem with no interaction. An aggregator synthesizes their outputs at the end.
+
+**Best for:** tasks where diverse independent perspectives improve quality (brainstorming, redundant verification).
+
+```mermaid
+flowchart TB
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef agg fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
+
+  Start([Start]) --> Fanout{{Parallel fan-out}}
+  Fanout --> A1[Agent 1]
+  Fanout --> A2[Agent 2]
+  Fanout --> A3[Agent 3]
+
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
+
+  Barrier --> Agg[Aggregator<br/>Synthesis]
+  Agg --> End([End])
+
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Agg agg;
+```
+
+## Decentralized
+
+Agents run in parallel rounds, reading each other's prior outputs and proposing refinements. After a fixed number of rounds, consensus is formed without a central coordinator.
+
+**Best for:** debate-style reasoning, peer review, or negotiation where no single authority should dominate.
+
+```mermaid
+flowchart TB
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
+
+  Start([Start]) --> Init[Initialize]
+  Init --> Board[(Shared board<br/>proposals so far)]
+
+  Board --> Fanout{{Parallel: read & propose}}
+  Fanout --> A1[Agent 1<br/>Read board<br/>+ propose delta]
+  Fanout --> A2[Agent 2<br/>Read board<br/>+ propose delta]
+  Fanout --> A3[Agent 3<br/>Read board<br/>+ propose delta]
+
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
+
+  Barrier --> Merge[Append deltas<br/>to board]
+  Merge --> Board
+
+  Board --> Stop{{Stop?<br/>round limit or convergence}}
+  Stop -->|No| Fanout
+  Stop -->|Yes| Consensus[Consensus formation<br/>from board]
+  Consensus --> End([End])
+
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Board state;
+  class Stop decision;
+```
+
+## Centralized Iterative
+
+A central orchestrator decomposes the problem, dispatches agents in parallel, evaluates their results, and decides whether to refine or finish.
+
+**Best for:** complex tasks that benefit from top-down planning with quality gates (code generation with review, multi-step research).
+
+```mermaid
+flowchart TB
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef orch fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
+  classDef eval fill:#ffe6e6,stroke:#fb7185,color:#4c0519;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
+
+  Start([Start]) --> Setup[Setup]
+  Setup --> Workspace[(Workspace<br/>tasks + results)]
+
+  Workspace --> Orch[Orchestrator<br/>Decompose / refine plan]
+  Orch --> Fanout{{Parallel: execute tasks}}
+  Fanout --> A1[Agent 1]
+  Fanout --> A2[Agent 2]
+  Fanout --> A3[Agent 3]
+
+  A1 --> Barrier{{Barrier / sync}}
+  A2 --> Barrier
+  A3 --> Barrier
+
+  Barrier --> Write[Write results<br/>to workspace]
+  Write --> Workspace
+
+  Workspace --> OrchEval[Orchestrator<br/>Evaluate quality]
+  OrchEval --> Stop{{Done?}}
+  Stop -->|No: refine| Orch
+  Stop -->|Yes| Final[Final<br/>Synthesis]
+  Final --> End([End])
+
+  class Fanout,Barrier control;
+  class A1,A2,A3 agent;
+  class Orch orch;
+  class OrchEval eval;
+  class Workspace state;
+  class Stop decision;
+```
+
+## Hybrid Iterative
+
+Combines centralized orchestration with decentralized peer refinement. The orchestrator plans and dispatches agents, then agents refine each other's work in a peer round before the orchestrator evaluates.
+
+**Best for:** high-quality collaborative output where both structured planning and peer feedback matter (collaborative writing, architecture design).
+
+```mermaid
+flowchart TB
+  classDef control fill:#e1f5ff,stroke:#4aa3df,color:#00324d;
+  classDef agent fill:#fff4e6,stroke:#e0a96d,color:#4a2c00;
+  classDef peer fill:#f0e6ff,stroke:#a78bfa,color:#2e1065;
+  classDef orch fill:#e6f3ff,stroke:#6ea8fe,color:#002b55;
+  classDef eval fill:#ffe6e6,stroke:#fb7185,color:#4c0519;
+  classDef state fill:#f3f4f6,stroke:#9ca3af,color:#111827;
+  classDef decision fill:#ffe6f0,stroke:#f472b6,color:#4a044e;
+
+  Start([Start]) --> Setup[Setup]
+  Setup --> Workspace[(Workspace<br/>drafts + notes)]
+
+  Workspace --> Orch[Orchestrator<br/>Plan]
+  Orch --> Fanout1{{Parallel: draft}}
+  Fanout1 --> A1[Agent 1]
+  Fanout1 --> A2[Agent 2]
+  Fanout1 --> A3[Agent 3]
+
+  A1 --> Barrier1{{Barrier / sync}}
+  A2 --> Barrier1
+  A3 --> Barrier1
+
+  Barrier1 --> Write1[Write drafts<br/>to workspace]
+  Write1 --> Workspace
+
+  Workspace --> Fanout2{{Parallel: peer refine}}
+  Fanout2 --> PR1[Peer 1<br/>Refine using others]
+  Fanout2 --> PR2[Peer 2<br/>Refine using others]
+  Fanout2 --> PR3[Peer 3<br/>Refine using others]
+
+  PR1 --> Barrier2{{Barrier / sync}}
+  PR2 --> Barrier2
+  PR3 --> Barrier2
+
+  Barrier2 --> Write2[Write refinements<br/>to workspace]
+  Write2 --> Workspace
+
+  Workspace --> OrchEval[Orchestrator<br/>Evaluate quality]
+  OrchEval --> Stop{{Done?}}
+  Stop -->|No: continue| Orch
+  Stop -->|Yes| Final[Final<br/>Synthesis]
+  Final --> End([End])
+
+  class Fanout1,Fanout2,Barrier1,Barrier2 control;
+  class A1,A2,A3 agent;
+  class PR1,PR2,PR3 peer;
+  class Orch orch;
+  class OrchEval eval;
+  class Workspace state;
+  class Stop decision;
+```
+
+## Choosing an architecture
+
+| Architecture | Coordination | Iteration | Use when |
+|---|---|---|---|
+| **Independent** | None | Single pass | You need diverse perspectives without interaction overhead |
+| **Decentralized** | Peer-to-peer | Fixed rounds | Agents should self-organize without a central authority |
+| **Centralized Iterative** | Orchestrator-driven | Quality-gated | You need structured decomposition with evaluation checkpoints |
+| **Hybrid Iterative** | Orchestrator + peers | Quality-gated | You want both top-down planning and bottom-up peer refinement |

@@ -1,0 +1,73 @@
+---
+title: Overview
+description: "Ante — ai-native, cloud-native, local-first agent runtime"
+slug: /
+---
+
+# Ante
+
+An **ai-native, cloud-native, local-first** agent runtime, built by [Antigma Labs](https://antigma.ai). A precursor to our mission of building substrate for self-organizing intelligence.
+
+Built from the ground up in native Rust — a single self-contained binary with no external dependencies.
+
+### Key features
+
+<CardGroup cols={3}>
+  <Card title="Lightweight agent core" icon="feather">
+    A single ~15MB binary with zero runtime dependencies. Built for minimal overhead and maximum throughput — the ideal runtime for orchestrating agents at cellular scale.
+  </Card>
+  <Card title="Native local models" icon="microchip">
+    Run models entirely on your machine with built-in llama.cpp integration. No API keys, no internet, no data leaving your device. Ante handles engine installation, model discovery, and memory management automatically.
+  </Card>
+  <Card title="Zero vendor lock-in" icon="lock-open">
+    Bring your own API key, subscription, or local model. Switch between 12+ providers freely — Anthropic, OpenAI, Gemini, Grok, Open Router, and more. No account required, no telemetry gate, no walled garden. Not even ours.
+  </Card>
+</CardGroup>
+
+### Why Ante?
+
+- **Obsessed with simplicity and quality.** In a world of abundance, maintaining quality and a high level of trust is more valuable than ever.
+- **Self-contained with [offline mode](/offline).** Your data stays on your machine. No phone-home, no telemetry gate.
+- **[Multi-agent orchestration](/agent-org).** Coordinate multiple agents that self-organize around complex tasks.
+- **Benchmark proven.** Public, reproducible evals with downloadable builds. See [Benchmarks](/benchmarks/eval).
+
+### How it works
+
+Ante runs as a client-daemon architecture. The daemon manages structured turn lifecycles — prompt, tool calls, confirmation, execution — channeling model power through a safe, predictable loop. The client can be an interactive TUI, a headless CLI, or an external process.
+
+Architecturally, Ante is moving toward an agent-centric runtime where long-lived agents coordinate through message passing — an actor model with hierarchical supervision, isolated state, and clear ownership of resources per agent.
+
+Ante can also run as a long-lived server (`ante serve`) that external clients drive through a structured JSONL protocol — ideal for building editor plugins, web UIs, and custom integrations.
+
+:::warning
+Ante is currently in **preview** and under active development. Expect breaking changes, experimental features, and incomplete functionality. Currently only **macOS** and **Linux** are supported.
+:::
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/start/quickstart">
+    Install Ante and run your first prompt in under a minute.
+  </Card>
+  <Card title="Philosophy" icon="book" href="/start/philosophy">
+    The product and engineering principles we optimize for.
+  </Card>
+  <Card title="Interactive TUI" icon="terminal" href="/usage/tui">
+    Learn to use the rich terminal interface.
+  </Card>
+  <Card title="Providers" icon="plug" href="/configuration/providers">
+    Pick and configure your model provider.
+  </Card>
+  <Card title="Core Concepts" icon="shapes" href="/concepts/core-concepts">
+    Understand sessions, tasks, turns, and the protocol.
+  </Card>
+  <Card title="Offline Mode" icon="wifi-slash" href="/offline">
+    Run Ante fully offline with local models.
+  </Card>
+  <Card title="Agent Organization" icon="sitemap" href="/agent-org">
+    How Ante self-organizes agents for complex tasks.
+  </Card>
+  <Card title="Benchmarks" icon="chart-line" href="/benchmarks/eval">
+    See how Ante performs on Terminal Bench.
+  </Card>
+</CardGroup>

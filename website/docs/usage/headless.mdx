@@ -1,0 +1,133 @@
+---
+title: "ante run"
+description: "Run Ante as a non-interactive CLI for scripting and CI pipelines"
+---
+
+Headless mode runs Ante without the TUI — it processes a prompt, executes the task, and exits. This is ideal for scripting, CI/CD pipelines, and automated workflows.
+
+## Basic usage
+
+Use the `-p` / `--prompt` flag to pass a prompt:
+
+```bash
+ante -p "explain what this project does"
+```
+
+Or with the long form:
+
+```bash
+ante --prompt "add tests for the auth module"
+```
+
+## Stdin input
+
+Pipe content from stdin:
+
+```bash
+cat src/main.rs | ante -p "review this code for bugs"
+```
+
+Combine stdin with a prompt:
+
+```bash
+echo "function add(a, b) { return a + b }" | ante -p "add TypeScript types"
+```
+
+When both stdin and a prompt argument are provided, they are concatenated (stdin first, then the prompt).
+
+## CLI reference
+
+```
+ante [OPTIONS] [--prompt <PROMPT>]
+```
+
+| Flag | Description |
+|---|---|
+| `-p`, `--prompt <PROMPT>` | The prompt to run |
+| `-m`, `--model <MODEL>` | Override the model name |
+| `--provider <PROVIDER>` | Override the API provider |
+| `--yolo` | Skip all tool approval prompts |
+| `--output-format <FORMAT>` | Output format: `json`, `human`, `minimal` (default: `minimal`) |
+| `--system-prompt <PROMPT>` | Replace the default system prompt entirely |
+| `--append-system-prompt <TEXT>` | Append text to the system prompt |
+| `--allowed-tools <TOOLS>...` | Only allow these tools (space-separated) |
+| `--disallowed-tools <TOOLS>...` | Disallow these tools (space-separated) |
+| `--check` | Run a verification pass after the main task completes |
+
+## Output formats
+
+### Minimal (default)
+
+Shows only agent messages, info, and errors:
+
+```bash
+ante -p "what does this project do"
+```
+
+### Human
+
+Shows all events in a human-readable format with ANSI colors:
+
+```bash
+ante --output-format human -p "fix the type error in main.rs"
+```
+
+### JSON
+
+Outputs every event as a JSON object (one per line), suitable for machine consumption:
+
+```bash
+ante --output-format json -p "list all TODO comments" | jq '.event'
+```
+
+## Verification check
+
+The `--check` flag runs a second pass after the main task, asking the agent to review its own work:
+
+```bash
+ante --check -p "refactor the auth module to use async/await"
+```
+
+The verification pass will:
+1. Review what was accomplished against the original request
+2. Complete anything missing or incomplete
+3. Optimize where possible without affecting correctness
+
+## Context enrichment
+
+In headless mode, Ante automatically appends the current directory's folder structure to your prompt. This gives the agent awareness of the project layout without you needing to describe it.
+
+## Headless behavior notes
+
+- **Streaming is disabled** — Responses are buffered for cleaner output
+- **Yolo policy is implied** — All tool calls are auto-approved (no interactive prompts)
+- **Authentication is checked eagerly** — If the provider isn't authenticated, Ante exits immediately with an error
+
+## Examples
+
+### CI: lint and fix
+
+```bash
+ante --yolo -p "run cargo clippy and fix all warnings"
+```
+
+### Code generation
+
+```bash
+ante --model claude-sonnet-4-5 --check \
+  -p "add comprehensive unit tests for src/core/session.rs"
+```
+
+### Restricted tools
+
+```bash
+# Read-only analysis — no file writes or shell access
+ante --allowed-tools Read Glob Grep \
+  -p "analyze the codebase architecture and summarize it"
+```
+
+### Pipe a diff for review
+
+```bash
+git diff HEAD~1 | ante -p "review this diff for bugs and security issues"
+```

@@ -1,0 +1,36 @@
+---
+title: "Philosophy"
+description: "The product and engineering principles behind Ante"
+---
+
+# Philosophy
+
+Ante is designed for **cellular-native** agents — agents built to run at scale, not in isolation. Everything we do serves this thesis.
+
+## Cellular-native
+
+Like cells in a living organism — tiny, expendable, massively replicated — agents should be lightweight enough to run by the thousands and reliable enough that the system self-heals when any one of them fails. Three pillars:
+
+- **Lightweight.** We're running hundreds and thousands of agent replicas. Each one can't cost a couple GB of memory — especially now, when RAM is expensive. Every byte per instance matters at scale. This is why we maintain a tight, tiny core: every line of code is a liability.
+
+- **Reliable.** Years of distributed systems experience have taught us: the return on reliability is non-linear. Below a threshold, the system is completely unusable. Above that threshold, the game changes. There's a phase transition — and you need to be on the right side of it.
+
+- **Closed-loop.** The handling and orchestration of agents should be intuitive and self-repairing — converging to a desired state automatically. Homeostasis in biology. Kubernetes in infrastructure. Declarative intent, automatic reconciliation. Individual agents are expendable; the organism persists.
+
+## Engineering principles
+
+These principles exist in service of the cellular-native thesis:
+
+- **Tight & tiny core.** Every line of code is a liability. Small core means auditable, fast to compile, easy to reason about — and lightweight enough to replicate at scale.
+
+- **Minimize cognitive load.** Fewer concepts to learn, fewer knobs to turn. If a feature needs a paragraph of explanation, it's probably too complex.
+
+- **Minimize dependencies.** Fewer dependencies mean fewer supply-chain risks, faster builds, and less breakage from upstream changes. We vendor or rewrite rather than add another crate.
+
+- **Avoid vendor lock-in — including our own.** You can use Ante without creating an account or logging in with us. Bring your own API key, swap providers freely, or run fully offline with local models.
+
+- **Principled agent organization.** Agents should be structured, not freeform. Ante enforces a clear turn lifecycle and permission model so agents behave predictably and transparently.
+
+- **Close the loop between training and inference.** Evaluation isn't an afterthought — it's how we know the agent harness is doing its job. We benchmark continuously against real-world tasks and feed results back into development.
+
+- **Curated and opinionated.** We foster a resistance to hype and noise and double down on converged industry consensus.

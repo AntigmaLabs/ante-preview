@@ -1,0 +1,137 @@
+---
+title: Permissions
+description: "How Ante gates tool execution with policies, rules, and matchers"
+---
+
+Ante has a permission system that controls whether tool calls are auto-approved, require user confirmation, or are denied entirely.
+
+## Policies
+
+| Policy | Behavior |
+|---|---|
+| `default` | Each tool call is evaluated against permission rules. If no rule matches, the user is prompted for approval. |
+| `yolo` | All tool calls are auto-approved — no prompts, no rules evaluation. |
+
+Set the policy in `~/.ante/settings.json`:
+
+```json
+{ "policy": "default" }
+```
+
+Or override per-session:
+
+```bash
+ante --yolo "run cargo clippy and fix all warnings"
+```
+
+:::warning
+In headless mode, `yolo` policy is implied — all tools are auto-approved since there is no interactive prompt.
+:::
+
+## Decisions
+
+| Decision | Effect |
+|---|---|
+| **Allow** | Tool executes immediately, no prompt |
+| **Ask** | User is prompted to approve or deny |
+| **Deny** | Tool call is blocked |
+
+## Rules
+
+Permission rules pair a **decision** with a **tool matcher**. Rules are evaluated in order — **first match wins**.
+
+```
+Rules:  [ Ask(Bash), Allow(Write), Deny(Bash(rm *)) ]
+                ↓
+Tool call: Bash({ "command": "ls" })
+                ↓
+Match: Ask(Bash)  ← first rule that matches wins
+                ↓
+Result: Ask (prompt user)
+```
+
+If no rule matches, the default decision is **Ask**.
+
+### Default rules
+
+| Tool | Default decision |
+|---|---|
+| `Bash` | Ask |
+| `Write` | Ask |
+| `Edit` | Ask |
+| `Read` | Allow |
+| `Glob` | Allow |
+| `Grep` | Allow |
+| `BashOutput` | Allow |
+| `KillShell` | Ask |
+| `Agent` | Allow |
+| `TodoWrite` | Allow |
+| `WebFetch` | Ask |
+| `WebSearch` | Ask |
+
+### Session-level overrides
+
+When you approve a tool during a session (e.g. "always allow Bash"), Ante inserts an `Allow` rule at the **front** of the rule list, effectively overriding the default `Ask` for that tool for the remainder of the session.
+
+## Tool matchers
+
+### Simple matcher
+
+Matches **any** invocation of a tool by name:
+
+```
+Bash
+Write
+Agent
+```
+
+### Specifier matcher
+
+Matches a tool **only when** its primary argument matches a glob pattern:
+
+```
+Bash(cargo test *)
+Bash(npm run *)
+Agent(explore)
+```
+
+| Tool | Primary argument |
+|---|---|
+| `Bash` | `command` |
+| `Agent` | `subagent_type` |
+
+### Glob syntax
+
+| Pattern | Matches |
+|---|---|
+| `cargo test *` | `cargo test --all`, `cargo test my_mod` |
+| `npm run *` | `npm run build`, `npm run test` |
+| `safe-cmd:*` | `safe-cmd:foo`, `safe-cmd:bar` |
+| `exp*` | `explore`, `experiment` |
+
+:::note
+The glob `safe-cmd:*` does **not** match `safe-cmd --flag`. Use `safe-cmd *` (with a space) to match space-separated arguments.
+:::
+
+## Tool filtering
+
+```bash
+# Only allow these tools (whitelist)
+ante --allowed-tools Read Glob Grep "analyze the code"
+
+# Remove these tools (blacklist)
+ante --disallowed-tools Bash Write "read-only analysis"
+
+# Fine-grained: allow Bash only for specific commands
+ante --allowed-tools Read "Bash(cargo test *)" "Bash(cargo clippy *)" "analyze and test"
+```
+
+:::tip
+Tool filtering and permissions are independent. Filtering controls what tools **exist** in the session; permissions control whether existing tools **require approval**.
+:::
+
+## Mode-specific behavior
+
+In **TUI mode**, tools that require approval show an interactive prompt. You can approve or deny each call, or choose to always allow a tool for the session.
+
+In **headless mode**, `yolo` policy is implied. Use `--allowed-tools` or `--disallowed-tools` to restrict what the agent can do.

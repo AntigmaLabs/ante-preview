@@ -1,0 +1,113 @@
+---
+title: "Preferences"
+description: "Settings file, environment variables, and directory structure"
+---
+
+## Settings file
+
+Ante stores user preferences in `~/.ante/settings.json`:
+
+```json
+{
+  "model": "claude-sonnet-4-5",
+  "provider": "anthropic",
+  "theme": "default",
+  "policy": "default",
+  "has_completed_onboarding": true,
+  "status_line": ["model-name", "current-dir"]
+}
+```
+
+| Field | Description |
+|---|---|
+| `model` | Default model name |
+| `provider` | Default API provider |
+| `theme` | TUI color theme |
+| `policy` | Default permission policy (`default` or `yolo`) |
+| `has_completed_onboarding` | Whether the onboarding flow has been completed |
+| `status_line` | Items to display in the TUI status line footer (see below) |
+
+### Status line
+
+The `status_line` field controls which items appear in the TUI's footer bar. It accepts an array of item identifiers:
+
+| Item | Description |
+|---|---|
+| `model-name` | Current model name |
+| `provider` | Current provider |
+| `current-dir` | Current working directory |
+| `git-branch` | Current Git branch (omitted when unavailable) |
+
+Default: `["model-name", "current-dir"]`. Configure via `~/.ante/settings.json` or the `/statusline` command in the TUI.
+
+Settings can be overridden per-session via CLI flags.
+
+## Environment variables
+
+| Variable | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | API key for Anthropic (Claude) |
+| `OPENAI_API_KEY` | API key for OpenAI |
+| `OPENAI_COMPATIBLE_API_KEY` | API key for OpenAI-compatible providers |
+| `GEMINI_API_KEY` | API key for Google Gemini |
+| `VERTEX_GEMINI_API_KEY` | API key for Vertex AI Gemini |
+| `XAI_API_KEY` | API key for Grok (xAI) |
+| `OPENROUTER_API_KEY` | API key for Open Router |
+| `Z_AI_API_KEY` | API key for Zai |
+| `MODEL_BASE_URL` | Override the base URL for any provider |
+| `MODEL_TEMPERATURE` | Override model temperature (float) |
+| `MODEL_TOP_P` | Override model top_p sampling parameter (float) |
+| `MODEL_THINKING` | Override thinking mode (`none`, `enabled`, `deep`, `max`) |
+| `MODEL_MAX_TOKENS` | Override max output tokens (integer) |
+| `ANTE_LOCAL_PROVIDER_PORT` | Override the local provider port (default: 8080) |
+| `ANTE_HOME` | Override the home config directory (default: `~/.ante`) |
+| `ANTE_DISABLE_STREAMING` | Disable streaming responses in TUI mode |
+
+## Directory structure
+
+### User-level (`~/.ante/`)
+
+```
+~/.ante/
+├── settings.json      # User preferences
+├── catalog.json       # Custom provider/model catalog
+├── skills/            # User-level skills
+└── agents/            # User-level sub-agents
+```
+
+### Project-level
+
+```
+.ante/
+└── skills/            # Project-specific skills
+
+.agents/
+└── skills/            # Project-specific skills
+
+.claude/
+└── skills/            # Project-specific skills (Claude Code compatibility)
+```
+
+### Project memory (`.ante/projects/`)
+
+```
+.ante/
+└── projects/
+    └── <path>/
+        └── memory/
+            └── MEMORY.md   # Auto-memory for this project
+```
+
+### Temporary files
+
+```
+/tmp/ante/<project-hash>/   # Temp files scoped per project
+```
+
+## Precedence
+
+Configuration is resolved in this order (later overrides earlier):
+
+1. Built-in defaults
+2. `~/.ante/settings.json`
+3. CLI flags (`--model`, `--provider`, etc.)

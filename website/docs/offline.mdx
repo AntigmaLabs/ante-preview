@@ -1,0 +1,121 @@
+---
+title: Offline Mode (Experimental)
+description: "Run Ante with local models - no API keys or internet required"
+---
+
+Ante can run entirely offline using local GGUF models via [llama.cpp](https://github.com/ggerganov/llama.cpp). This means no API keys, no internet, and no data leaving your machine.
+
+## How it works
+
+Ante includes an integrated inference engine powered by llama.cpp. When you select offline mode, Ante:
+
+1. Checks for llama.cpp installation (and offers to install/upgrade if needed)
+2. Discovers GGUF models on your system
+3. Detects running llama servers on local ports
+4. Estimates memory requirements based on model size and context window
+5. Runs inference locally through the engine
+
+## Setting up
+
+1. **Launch Ante and open offline mode** — Start Ante normally and use the offline mode selector in the TUI:
+   ```bash
+   ante
+   ```
+
+2. **Install llama.cpp** — If not installed, Ante will prompt you to install it automatically to `~/.ante/llama.cpp`. When a newer version is available, Ante will offer an upgrade option.
+
+3. **Select a model** — Choose from:
+   - **Verified models** — curated models tested for compatibility (downloaded from Hugging Face)
+   - **Local models** — GGUF files already on your system (auto-discovered)
+   - **Running servers** — attach to an already-running llama server on a local port
+
+4. **Or use the CLI flag:**
+   ```bash
+   ante --provider local "your prompt here"
+   ```
+
+## Model discovery
+
+Ante automatically scans the following directories for GGUF model files:
+
+| Directory | Description |
+|---|---|
+| `~/.ante/models` | Default model directory (configurable) |
+| `~/.cache/llama.cpp` | llama.cpp cache |
+| `~/.cache/huggingface/hub` | Hugging Face cache |
+| `~/.llama/models` | Common llama model directory |
+
+## Model preferences
+
+| Setting | Description |
+|---|---|
+| `context_window` | Context window size (minimum 32K tokens) |
+| `thinking` | Enable/disable chain-of-thought |
+| `temperature` | Sampling temperature |
+
+## Memory considerations
+
+Ante estimates memory usage based on model file size, KV cache (scales with context window), and shard count.
+
+:::tip
+For large models, reduce the context window to lower memory usage. The minimum is 32K tokens.
+:::
+
+## Server management
+
+| Shortcut | Action |
+|---|---|
+| `Ctrl+E` | Stop the currently connected server |
+| `Ctrl+O` | View the server log |
+
+When exiting Ante with a server running, you'll be prompted:
+- **`s`** — Stop the server and exit
+- **`k`** — Keep the server running and exit (prints PID)
+- **`Esc`** — Cancel and stay in Ante
+
+## Verified models
+
+Ante includes a curated list of verified models. To add custom verified models, create `~/.ante/verified_models.json`:
+
+```json
+{
+  "models": [
+    {
+      "name": "My Custom Model",
+      "repo": "username/repo-name",
+      "filename": "model-Q4_K_M.gguf",
+      "context_window": 32768,
+      "file_size_mb": 5000,
+      "kv_cache_bytes_per_token": 131072
+    }
+  ]
+}
+```
+
+## Configuration reference
+
+All offline mode configuration is stored in `~/.ante/offline-config.json`:
+
+```json
+{
+  "version": "1.0.0",
+  "model_directory": "~/.ante/models",
+  "port": 8080,
+  "last_model": "model-name",
+  "model_preferences": {
+    "model-id": {
+      "model_id": "model-id",
+      "context_window": 32768,
+      "thinking_enabled": true,
+      "temperature": 0.7
+    }
+  }
+}
+```
+
+| Field | Description | Default |
+|---|---|---|
+| `model_directory` | Where to look for local GGUF models | `~/.ante/models` |
+| `port` | Starting port for the llama server | `8080` |
+| `last_model` | Last used model (auto-saved) | — |
+| `model_preferences` | Per-model settings | — |

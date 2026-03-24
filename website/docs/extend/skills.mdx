@@ -1,0 +1,110 @@
+---
+title: Skills
+description: "Give Ante new capabilities with Agent Skills — the open format for portable agent expertise"
+---
+
+Skills are folders of instructions, scripts, and resources that extend Ante's capabilities. They follow the open [Agent Skills](https://agentskills.io) format, making them portable across compatible agent products.
+
+## Creating a skill
+
+A skill is a directory containing a `SKILL.md` file:
+
+```
+commit/
+└── SKILL.md
+```
+
+`SKILL.md` uses YAML frontmatter followed by Markdown instructions:
+
+```markdown
+---
+name: commit
+description: Create a git commit with a descriptive message following conventional commit format.
+---
+
+Look at the current git diff and create a commit with a clear,
+descriptive message that follows conventional commit format.
+Use `git add` to stage relevant files first.
+```
+
+### Example: review skill with tools and references
+
+```
+review/
+├── SKILL.md
+└── references/
+    └── checklist.md
+```
+
+```markdown
+---
+name: review
+description: Review code changes for bugs, security issues, and style.
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+---
+
+Review the code at $ARGUMENTS for bugs, security vulnerabilities, style issues, and missing error handling.
+
+See [checklist](references/checklist.md) for the full review checklist.
+```
+
+:::note
+The `allowed-tools` field also accepts a comma-separated string (`"Read, Glob, Grep"`) or a space-separated string (`"Read Glob Grep"`) in addition to the YAML array format.
+:::
+
+## Skill directories
+
+| Directory | Scope |
+|---|---|
+| `~/.ante/skills/` | User-level (available in all projects) |
+| `.agents/skills/` | Project-level |
+| `.ante/skills/` | Project-level |
+| `.claude/skills/` | Project-level (Claude Code compatibility) |
+
+## SKILL.md frontmatter
+
+| Field | Required | Default | Description |
+|---|---|---|---|
+| `name` | No | Directory name | Identifier for the skill |
+| `description` | No | First paragraph | What this skill does and when to use it |
+| `argument-hint` | No | — | Hint text for expected arguments (e.g. `<path>`) |
+| `user-invocable` | No | `true` | Whether the skill can be invoked via slash command |
+| `disable-model-invocation` | No | `false` | Prevents the model from invoking this skill automatically |
+| `allowed-tools` | No | — | Pre-approved tools the skill can use |
+| `metadata` | No | — | Arbitrary key-value pairs |
+
+## Optional directories
+
+```
+my-skill/
+├── SKILL.md           # Required — instructions
+├── scripts/           # Executable code the agent can run
+├── references/        # Additional docs loaded on demand
+└── assets/            # Templates, schemas, data files
+```
+
+## How skills are discovered
+
+Skills are discovered in precedence order (later overrides earlier):
+
+1. System-level (built-in skills)
+2. `~/.ante/skills/` (user-level)
+3. `.agents/skills/` (project-level)
+4. `.ante/skills/` (project-level)
+5. `.claude/skills/` (project-level)
+
+## Using skills
+
+```
+/commit
+/review src/core/session.rs
+```
+
+The `$ARGUMENTS` placeholder in the skill instructions is replaced with whatever you pass after the skill name.
+
+## Learn more
+
+See the [full specification](https://agentskills.io/specification) for details on naming conventions, progressive disclosure, and validation.

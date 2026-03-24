@@ -1,0 +1,3 @@
+{
+  "extends": "@docusaurus/module-type-aliases/tsconfig.json"
+}

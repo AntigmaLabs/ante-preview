@@ -1,0 +1,144 @@
+---
+title: Interactive TUI
+description: "Using Ante's rich terminal user interface"
+---
+
+Launch Ante without a prompt to enter the interactive TUI:
+
+```bash
+ante
+```
+
+## Overview
+
+The TUI is built with [ratatui](https://ratatui.rs/) and provides a rich chat interface directly in your terminal. It renders inline (up to 24 lines) and uses debounced rendering at approximately 100fps for smooth output.
+
+## Key features
+
+### Chat interface
+
+The main view shows a conversation between you and the agent. Type your prompt in the input area and press Enter to send. The agent's responses stream in real-time with markdown rendering.
+
+### Tool approval
+
+When the agent wants to execute a tool that requires approval (like `Bash` or `Write`), you'll see an approval prompt. You can:
+
+- **Allow** the tool call
+- **Deny** it and the agent will adjust its approach
+
+### Diff view
+
+When the agent proposes file edits, Ante switches to a fullscreen diff view on an alternate screen. You can review the exact changes before approving.
+
+### Model and provider selection
+
+Use the built-in selectors to switch models or providers during a session without restarting.
+
+### Theme selection
+
+Ante includes a theme system for consistent styling. Choose a theme through the theme dialog.
+
+## Slash commands
+
+The TUI supports built-in slash commands for common actions:
+
+| Command | Description |
+|---|---|
+| `/clear` | Clear conversation history |
+| `/init` | Initialize codebase analysis |
+| `/exit` | Exit (aliases: `exit`, `quit`) |
+| `/theme` | Open theme selection dialog |
+| `/diff` | Show git diff (including untracked files) |
+| `/connect` | Connect to a provider (OAuth) |
+| `/model` | Open model selector |
+| `/offline-mode` | Open offline model selector |
+| `/welcome` | Show onboarding/welcome dialog |
+| `/statusline` | Configure the status line |
+
+:::note
+Some commands are "visible" (appear in conversation history) and others are "silent" (execute without adding to history). `/clear`, `/init`, and `/exit` are visible; the rest are silent.
+:::
+
+Skills also appear as slash commands with scope indicators: `[p]` for project-level, `[u]` for user-level, `[s]` for system-level, and `[a]` for agent-level skills.
+
+## Keyboard shortcuts
+
+### Chat input
+
+| Key | Action |
+|---|---|
+| `Enter` | Send message |
+| `Ctrl+Enter` / `Alt+Enter` / `Shift+Enter` | Insert newline |
+| `Up` / `Down` | Move cursor, then navigate history |
+| `Tab` | Complete command or file path suggestion |
+| `Ctrl+R` | Start reverse-i-search through prompt history |
+| `Ctrl+C` | Interrupt current task (double-press to exit) |
+| `Ctrl+D` | Exit application |
+| `Escape` | Close popup or interrupt active task |
+
+### Global shortcuts
+
+| Key | Action |
+|---|---|
+| `Ctrl+T` | Open theme dialog |
+| `Ctrl+E` | Stop running llama server (offline mode) |
+| `Ctrl+O` | Toggle local inference log panel |
+| `Ctrl+K` / `Ctrl+J` | Scroll inference log up/down |
+
+### Diff view (fullscreen)
+
+| Key | Action |
+|---|---|
+| `j` / `Down` | Scroll down |
+| `k` / `Up` | Scroll up |
+| `Page Down` / `Page Up` | Page scroll |
+| `Home` / `End` | Jump to top/bottom |
+| `q` / `Escape` | Close diff view |
+
+### Tool approval
+
+| Key | Action |
+|---|---|
+| `a` | Accept tool call |
+| `A` | Accept all tool calls for this session |
+| `r` | Reject/skip tool call |
+| `d` | View diff preview |
+
+### Reverse search (Ctrl+R mode)
+
+| Key | Action |
+|---|---|
+| `Ctrl+R` | Next match |
+| `Ctrl+S` | Previous match |
+| `Enter` | Accept match |
+| `Escape` / `Ctrl+G` | Cancel search |
+
+## @ mentions
+
+Type `@` in the input to reference files or directories. A file search dropdown appears as you type:
+
+- `@path/to/file.rs` — embeds the file contents in your message
+- `@path/to/dir/` — embeds the directory tree listing
+
+:::tip
+If you paste multiple file paths, Ante auto-prefixes them with `@` for convenience.
+:::
+
+## CLI flags for TUI mode
+
+```bash
+ante --model claude-sonnet-4-5
+ante --provider openai
+ante --system-prompt "You are a Python expert"
+ante --append-system-prompt "Always use type hints"
+ante --allowed-tools Read Grep Glob
+ante --disallowed-tools Bash Write
+```
+
+## Streaming
+
+Streaming is enabled by default in TUI mode. To disable it:
+
+```bash
+ANTE_DISABLE_STREAMING=1 ante
+```
