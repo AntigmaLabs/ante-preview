@@ -33,7 +33,7 @@ Ante is designed for the **cellular-native** thesis: agents lightweight enough t
 
 Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode):
 
-![Resource Usage Comparison](https://storage.googleapis.com/antigma-public/compare_animated.gif)
+![Resource Usage Comparison](website/static/assets/compare_animated.gif)
 
 Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [full comparison table](docs/assets/compare_table.md) for detailed CPU, memory, disk, and I/O metrics.
 
@@ -182,5 +182,4 @@ Yes. Drop skill files in `~/.ante/skills/` (user-level) or `.ante/skills/` (proj
 ## Documentation
 
 Full documentation is available at [docs.antigma.ai](https://docs.antigma.ai).
-
-To preview docs locally, run `npx mintlify dev` from the `docs/` directory.
+The source code is in `website/docs`
