@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AntigmaLabs/ante-preview/main/website/static/assets/ante.png" width="80" alt="Ante" />
+  <img src="website/static/assets/ante.png" width="80" alt="Ante" />
 </p>
 
 <p align="center">
@@ -123,8 +123,27 @@ Ante works with 12+ providers out of the box:
 Configure providers via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) or OAuth. Add custom providers in `~/.ante/catalog.json`.
 
 ## FAQ
+### Why <span style="color: #f59e0b;">An</span>other <span style="color: #f59e0b;">Te</span>rminal agent
+Ante is fast, lightweight, and the only terminal agent with native local inference support built in.
+We believe this self-contained agent core that self organize is the centre of the future of agent economy.
+
+It is just built different. 
 
 <details>
+<summary><b>How is Ante different than other agents</b></summary>
+On the high level, it has most of your favorite features (Multi-agents, skills, etc.) of your favorite agents (like Claude Code, Codex, etc.) 
+
+- Ante is built from scratch in native Rust, we are obsessed with being self contained, so only essential libraries without framework or runtime dependencies. 
+
+- You only need a llm provider configured to run it. Actually if you have the hardware, you don't even need a llm provider because Ante natively support private inference engine. 
+
+- This resulted in ~15MB self-contained binary and multi-agent orchestration designed to run hundreds of replicas in parallel at scale.
+See the [resource usage comparison](docs/assets/compare_table.md) across 20 parallel tasks for concrete numbers.
+
+- No vendor lock-ins, not even ourself. You don't need an account and can reuse your favorite api credentials. 
+
+</details>
+
 <summary><b>Does Ante support Windows?</b></summary>
 
 Not yet. Ante currently supports macOS and Linux only. Windows support may come in the future. You can use WSL for now. 
@@ -146,16 +165,6 @@ Yes. Create a `~/.ante/catalog.json` file to add or override providers and model
 <summary><b>What is the <code>ante serve</code> mode for?</b></summary>
 
 Server mode runs Ante as a long-lived daemon that communicates over a structured JSONL protocol. It's ideal for building editor plugins, web UIs, and custom integrations on top of Ante.
-</details>
-
-<details>
-<summary><b>How does Ante compare to other AI coding agents, and do I need an account?</b></summary>
-
-No account required. Ante has zero vendor lock-in — use it with any API key from any supported provider, switch freely between 12+ providers, or run fully offline with local models. No Antigma account needed.
-
-Unlike other agents, Ante is built from scratch in native Rust — not a wrapper around an SDK or framework. Key differentiators: ~15MB self-contained binary, client-daemon architecture, native local model support, and multi-agent orchestration designed to run hundreds of replicas in parallel at scale.
-
-See the [resource usage comparison](docs/assets/compare_table.md) across 20 parallel tasks for concrete numbers.
 </details>
 
 <details>
