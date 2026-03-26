@@ -144,12 +144,14 @@ See the [resource usage comparison](docs/assets/compare_table.md) across 20 para
 
 </details>
 
-<summary><b>Does Ante support Windows?</b></summary>
+<details>
+<summary><b>Why care about runtime optimization like memory and I/O if model inference is usually the biggest bottleneck?</b></summary>
 
-Not yet. Ante currently supports macOS and Linux only. Windows support may come in the future. You can use WSL for now. 
+For one-on-one agent interactions, runtime overhead like memory usage and I/O is often less important than model inference.
+
+But our vision is much bigger: millions of agents self-organizing and communicating at massive scale. At that point, even small inefficiencies get multiplied millions or billions of times, so runtime optimization becomes economically significant.
 </details>
 
-<details>
 <summary><b>Can I run Ante completely offline?</b></summary>
 
 Yes. Ante has a built-in llama.cpp engine that runs GGUF models locally. It handles engine installation, model discovery, and memory management automatically. No API keys or internet connection required.
