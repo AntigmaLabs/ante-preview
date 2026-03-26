@@ -69,7 +69,8 @@ Initialize a new session with model, provider, and configuration.
       "append_system_prompt": null,
       "allowed_tools": null,
       "disallowed_tools": null,
-      "cwd": null
+      "cwd": null,
+      "thinking": null
     }
   },
   "id": "op_..."
@@ -89,6 +90,7 @@ Initialize a new session with model, provider, and configuration.
 | `allowed_tools` | `string[]?` | Whitelist — only these tools are available |
 | `disallowed_tools` | `string[]?` | Blacklist — these tools are removed |
 | `cwd` | `string?` | Working directory. Defaults to daemon's process directory |
+| `thinking` | `Thinking?` | Thinking level override: `"Disabled"`, `"Enabled"`, `"Deep"`, or `"Max"` |
 
 ### UpdateSession
 
@@ -426,10 +428,10 @@ Emitted when skills and subagents are refreshed. This is also sent after `Sessio
     "ExtensionRefreshed": {
       "session_id": "ses_01ARZ...",
       "skills": [
-        { "name": "commit", "description": "Create a git commit", "scope": "User" }
+        { "name": "commit", "description": "Create a git commit", "scope": "user", "argument_hint": "-m 'message'" }
       ],
       "subagents": [
-        { "name": "explore", "description": "Explore the codebase" }
+        { "name": "explore", "description": "Explore the codebase", "scope": "project" }
       ]
     }
   }
