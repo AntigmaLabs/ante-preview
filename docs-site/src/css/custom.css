@@ -103,3 +103,34 @@ code {
 .searchBar_node_modules-\@easyops-cn-docusaurus-search-local-dist-client-client-theme-SearchBar-index-module {
   margin-right: 8px;
 }
+
+.benchmark-gallery {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.benchmark-shot {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--ifm-toc-border-color);
+  border-radius: 12px;
+  background: var(--ifm-background-surface-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .benchmark-shot {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.benchmark-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.benchmark-shot figcaption {
+  padding: 0.9rem 1rem 1rem;
+  font-size: 0.95rem;
+  color: var(--ifm-color-emphasis-700);
+}
