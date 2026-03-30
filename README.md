@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="website/static/assets/ante.png" width="80" alt="Ante" />
+  <img src="docs-site/static/assets/ante.png" width="80" alt="Ante" />
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@ Ante is designed for the **cellular-native** thesis: agents lightweight enough t
 
 Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode):
 
-![Resource Usage Comparison](website/static/assets/compare_animated.gif)
+![Resource Usage Comparison](docs-site/static/assets/compare_animated.gif)
 
 Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [full comparison table](docs/assets/compare_table.md) for detailed CPU, memory, disk, and I/O metrics.
 
@@ -185,4 +185,4 @@ Yes. Drop skill files in `~/.ante/skills/` (user-level) or `.ante/skills/` (proj
 ## Documentation
 
 Full documentation is available at [docs.antigma.ai](https://docs.antigma.ai).
-The source code is in `website/docs`
+The source code is in `docs-site/docs`
