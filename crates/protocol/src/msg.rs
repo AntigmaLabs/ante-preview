@@ -31,6 +31,7 @@ pub enum Op {
     Steer(String),
     ApprovalResponse { turn_id: Id, responses: Vec<(String, ReviewDecision)> },
     SlashCommand { name: String, args: String },
+    ResumeSession { session_id: Id },
     OfflineMode(OfflineModeOp),
     Shutdown,
 }
@@ -41,6 +42,7 @@ pub enum Evt {
     SessionUpdated(Box<SessionInitialized>),
     ExtensionRefreshed(Box<ExtensionRefreshed>),
     SessionEnd,
+    UserInput(String),
     AgentMessage(String),
     Thinking(String),
     MessageDelta(String),
