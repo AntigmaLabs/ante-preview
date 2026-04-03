@@ -53,6 +53,7 @@ The TUI supports built-in slash commands for common actions:
 | `/model` | Open model selector |
 | `/offline-mode` | Open offline model selector |
 | `/welcome` | Show onboarding/welcome dialog |
+| `/resume` | Resume a previous session in this directory |
 | `/statusline` | Configure the status line |
 
 :::note
@@ -60,6 +61,28 @@ Some commands are "visible" (appear in conversation history) and others are "sil
 :::
 
 Skills also appear as slash commands with scope indicators: `[p]` for project-level, `[u]` for user-level, `[s]` for system-level, and `[a]` for agent-level skills.
+
+## Session resume
+
+Ante persists every session to disk. Use `/resume` to pick up a previous conversation where you left off.
+
+### How it works
+
+1. Type `/resume` to open the session picker
+2. Browse sessions scoped to the current working directory — each entry shows the first message, model, message count, and relative time
+3. Press **Enter** to select, or **Esc** to cancel
+
+On resume, Ante:
+- Restores the full conversation history
+- Re-discovers agents and skills in the project directory
+- Refreshes system prompts and tool definitions (so new features are available)
+- Replays up to 200 recent events so the TUI rebuilds the conversation view
+
+Sessions are stored in `~/.ante/sessions/{session_id}/` with atomic writes for crash safety.
+
+:::note
+Session resume is a TUI-only feature — it is not available in headless mode.
+:::
 
 ## Keyboard shortcuts
 

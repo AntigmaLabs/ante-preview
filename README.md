@@ -36,7 +36,7 @@ Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode)
 
 ![Resource Usage Comparison](docs-site/static/assets/compare_animated.gif)
 
-Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [full comparison table](docs/assets/compare_table.md) for detailed CPU, memory, disk, and I/O metrics.
+Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [benchmark details](docs-site/docs/benchmarks/eval.mdx) for the evaluation methodology and results.
 
 ## Quick Start
 
@@ -139,7 +139,7 @@ On the high level, it has most of your favorite features (Multi-agents, skills, 
 - You only need a llm provider configured to run it. Actually if you have the hardware, you don't even need a llm provider because Ante natively support private inference engine. 
 
 - This resulted in ~15MB self-contained binary and multi-agent orchestration designed to run hundreds of replicas in parallel at scale.
-See the [resource usage comparison](docs/assets/compare_table.md) across 20 parallel tasks for concrete numbers.
+See the [benchmark details](docs-site/docs/benchmarks/eval.mdx) across 20 parallel tasks for concrete numbers.
 
 - No vendor lock-ins, not even ourself. You don't need an account and can reuse your favorite api credentials. 
 

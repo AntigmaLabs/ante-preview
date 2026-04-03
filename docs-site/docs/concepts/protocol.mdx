@@ -113,6 +113,20 @@ Update the active session without restarting it (e.g. switch models mid-session)
 |---|---|---|
 | `model` | `ModelSpec` | New model specification to use |
 
+### ResumeSession
+
+Resume a previously persisted session by its ID. The daemon restores the conversation history, re-discovers extensions, and replays recent events so the client can rebuild its view.
+
+```json
+{ "op": { "ResumeSession": { "session_id": "ses_01ARZ..." } }, "id": "op_..." }
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `session_id` | `Id` | The session identifier to resume |
+
+On success the daemon emits `SessionEnd` for the current session (if any), then `SessionStart` and `ExtensionRefreshed` for the resumed session, followed by up to 200 replayed historical events. On failure it emits an `Error` event.
+
 ### Steer
 
 Provide additional guidance to the agent during an active turn without starting a new one.

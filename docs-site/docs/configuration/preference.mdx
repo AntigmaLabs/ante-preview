@@ -59,6 +59,7 @@ Settings can be overridden per-session via CLI flags.
 | `MODEL_TOP_P` | Override model top_p sampling parameter (float) |
 | `MODEL_THINKING` | Override thinking mode (`none`, `enabled`, `deep`, `max`). These map to the protocol-level values `Disabled`, `Enabled`, `Deep`, `Max` respectively |
 | `MODEL_MAX_TOKENS` | Override max output tokens (integer) |
+| `MODEL_CONTEXT_LIMIT` | Override max context window size (integer) |
 | `ANTE_LOCAL_PROVIDER_PORT` | Override the local provider port (default: 8080) |
 | `ANTE_HOME` | Override the home config directory (default: `~/.ante`) |
 | `ANTE_DISABLE_STREAMING` | Disable streaming responses in TUI mode |
@@ -71,6 +72,7 @@ Settings can be overridden per-session via CLI flags.
 ~/.ante/
 ├── settings.json      # User preferences
 ├── catalog.json       # Custom provider/model catalog
+├── sessions/          # Persisted sessions (for /resume)
 ├── skills/            # User-level skills
 └── agents/            # User-level sub-agents
 ```

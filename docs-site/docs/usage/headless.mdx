@@ -53,6 +53,7 @@ ante [OPTIONS] [--prompt <PROMPT>]
 | `--allowed-tools <TOOLS>...` | Only allow these tools (space-separated) |
 | `--disallowed-tools <TOOLS>...` | Disallow these tools (space-separated) |
 | `--check` | Run a verification pass after the main task completes |
+| `--simple-agent` | Simple agent mode — uses a minimal system prompt with `PTY`, `ImageRead`, and `WebSearch` tools |
 
 ## Output formats
 
@@ -92,6 +93,16 @@ The verification pass will:
 1. Review what was accomplished against the original request
 2. Complete anything missing or incomplete
 3. Optimize where possible without affecting correctness
+
+## Simple agent mode
+
+The `--simple-agent` flag starts Ante with a minimal system prompt and a reduced tool set (`PTY`, `ImageRead`, `WebSearch`). This is useful for lightweight automation where you don't need the full coding agent:
+
+```bash
+ante --simple-agent -p "take a screenshot and describe what you see"
+```
+
+If you also pass `--system-prompt` or `--allowed-tools`, those take precedence over the simple-agent defaults.
 
 ## Context enrichment
 
