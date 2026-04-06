@@ -76,6 +76,45 @@ ante --provider local -p "add error handling to src/main.rs"
 ante serve
 ```
 
+## Example Usages with TUI
+
+<table>
+<tr>
+<td width="50%">
+
+**[Providing Context: Files & Folders](https://docs.antigma.ai/cookbook/providing-context)**
+
+![Adding file context with @ mentions](docs-site/static/assets/cookbook/files.gif)
+
+</td>
+<td width="50%">
+
+**[Interrupting & Steering](https://docs.antigma.ai/cookbook/steering)**
+
+![Interrupting the agent with Escape](docs-site/static/assets/cookbook/interrupt.gif)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**[Models, Providers & Thinking](https://docs.antigma.ai/cookbook/models-and-thinking)**
+
+![Selecting a model and provider](docs-site/static/assets/cookbook/model.gif)
+
+</td>
+<td width="50%">
+
+**[Subscription Login](https://docs.antigma.ai/cookbook/login)**
+
+![Connecting to a provider via /connect](docs-site/static/assets/cookbook/connect.gif)
+
+</td>
+</tr>
+</table>
+
+[See all cookbook guides](https://docs.antigma.ai/category/tui-cookbook)
+
 ## Architecture
 
 ```
@@ -94,9 +133,9 @@ ante serve
 │                                                             │
 │   Session ──▶ Turn ──▶ Step                                 │
 │                                                             │
-│   ┌──────────┐  ┌──────────────┐  ┌───────────────────┐    │
-│   │  Tools   │  │  Permission  │  │  Skills / Agents  │    │
-│   └──────────┘  └──────────────┘  └───────────────────┘    │
+│   ┌──────────┐  ┌──────────────┐  ┌───────────────────┐     │
+│   │  Tools   │  │  Permission  │  │  Skills / Agents  │     │
+│   └──────────┘  └──────────────┘  └───────────────────┘     │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
