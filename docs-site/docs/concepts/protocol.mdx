@@ -18,7 +18,7 @@ Every operation is wrapped in an `OpMsg`:
 
 ```json
 {
-  "op": { "StartSession": { "model": "claude-sonnet-4-5", "provider": "anthropic", "streaming": true } },
+  "op": { "StartSession": { "model": "claude-sonnet-4-6", "provider": "anthropic", "streaming": true } },
   "id": "op_01ARZ3NDEKTSV4RRFFQ69G5FAV"
 }
 ```
@@ -61,7 +61,7 @@ Initialize a new session with model, provider, and configuration.
 {
   "op": {
     "StartSession": {
-      "model": "claude-sonnet-4-5",
+      "model": "claude-sonnet-4-6",
       "provider": "anthropic",
       "policy": null,
       "streaming": true,
@@ -81,9 +81,9 @@ Initialize a new session with model, provider, and configuration.
 
 | Field | Type | Description |
 |---|---|---|
-| `model` | `string` | Model name (e.g. `"claude-sonnet-4-5"`) |
-| `provider` | `string` | Provider name (e.g. `"anthropic"`, `"openai"`, `"gemini"`) |
-| `policy` | `Policy?` | Tool approval policy. `null` uses default |
+| `model` | `string` | Model name (e.g. `"claude-sonnet-4-6"`) |
+| `provider` | `string` | Provider name (e.g. `"anthropic"`, `"openai"`, `"gemini"`, `"xai"`, `"openrouter"`, `"local"`) |
+| `policy` | `PermissionMode?` | Tool approval policy. `null` uses default |
 | `streaming` | `bool` | Enable streaming deltas (`MessageDelta`, `ThinkingDelta`) |
 | `system_prompt` | `string?` | Override the default system prompt entirely |
 | `append_system_prompt` | `string?` | Append content to the default system prompt |
@@ -94,7 +94,7 @@ Initialize a new session with model, provider, and configuration.
 
 ### UpdateSession
 
-Update the active session without restarting it (e.g. switch models mid-session).
+Update the active session without restarting it (e.g. switch models mid-session). Today `SessionUpdate` carries only a new `ModelSpec`; other session options must be set at `StartSession` time.
 
 ```json
 {
@@ -215,7 +215,7 @@ Emitted when a session is initialized. Contains metadata about the active model,
 {
   "event": {
     "SessionStart": {
-      "model": { "name": "claude-sonnet-4-5", "max_tokens": 8192 },
+      "model": { "name": "claude-sonnet-4-6", "max_tokens": 8192 },
       "provider": "Anthropic",
       "session_id": "ses_01ARZ...",
       "cwd": "/home/user/project"
@@ -484,6 +484,14 @@ Final message before the daemon disconnects. After receiving this, no more event
 
 ```json
 { "event": "Goodbye" }
+```
+
+#### UserInput
+
+User input recorded for session replay. This variant is written to the persisted event log but is **not** emitted during live sessions — you will only see it in events replayed by `ResumeSession`.
+
+```json
+{ "event": { "UserInput": "explain what this project does" } }
 ```
 
 ### Offline mode events

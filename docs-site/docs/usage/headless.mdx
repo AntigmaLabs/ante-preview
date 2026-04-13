@@ -45,13 +45,14 @@ ante [OPTIONS] [--prompt <PROMPT>]
 |---|---|
 | `-p`, `--prompt <PROMPT>` | The prompt to run |
 | `-m`, `--model <MODEL>` | Override the model name |
-| `--provider <PROVIDER>` | Override the API provider |
+| `--provider <PROVIDER>` | Override the API provider (e.g. `anthropic`, `openai`, `gemini`, `xai`, `openrouter`, `local`) |
 | `--yolo` | Skip all tool approval prompts |
 | `--output-format <FORMAT>` | Output format: `json`, `human`, `minimal` (default: `minimal`) |
 | `--system-prompt <PROMPT>` | Replace the default system prompt entirely |
 | `--append-system-prompt <TEXT>` | Append text to the system prompt |
 | `--allowed-tools <TOOLS>...` | Only allow these tools (space-separated) |
 | `--disallowed-tools <TOOLS>...` | Disallow these tools (space-separated) |
+| `-r`, `--resume <SESSION_ID>` | Resume a previously saved session by its ID |
 | `--check` | Run a verification pass after the main task completes |
 | `--simple-agent` | Simple agent mode — uses a minimal system prompt with `PTY`, `ImageRead`, and `WebSearch` tools |
 
@@ -114,6 +115,16 @@ In headless mode, Ante automatically appends the current directory's folder stru
 - **Yolo policy is implied** — All tool calls are auto-approved (no interactive prompts)
 - **Authentication is checked eagerly** — If the provider isn't authenticated, Ante exits immediately with an error
 
+## Resuming a session
+
+Pass `--resume <SESSION_ID>` to continue a previously saved session. Ante replays the persisted history, then applies the new prompt as the next turn:
+
+```bash
+ante --resume ses_01ARZ3NDEKTSV4RRFFQ69G5FAV -p "now add tests"
+```
+
+The session ID is printed when a TUI session exits (`Resume this session with: ante --resume ses_...`).
+
 ## Examples
 
 ### CI: lint and fix
@@ -125,7 +136,7 @@ ante --yolo -p "run cargo clippy and fix all warnings"
 ### Code generation
 
 ```bash
-ante --model claude-sonnet-4-5 --check \
+ante --model claude-sonnet-4-6 --check \
   -p "add comprehensive unit tests for src/core/session.rs"
 ```
 

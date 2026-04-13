@@ -60,7 +60,7 @@ The TUI supports built-in slash commands for common actions:
 Some commands are "visible" (appear in conversation history) and others are "silent" (execute without adding to history). `/clear`, `/init`, and `/exit` are visible; the rest are silent.
 :::
 
-Skills also appear as slash commands with scope indicators: `[p]` for project-level, `[u]` for user-level, `[s]` for system-level, and `[a]` for agent-level skills.
+Skills also appear as slash commands with scope indicators: `[p]` for project-level, `[u]` for user-level, and `[s]` for system-level skills.
 
 ## Session resume
 
@@ -80,8 +80,8 @@ On resume, Ante:
 
 Sessions are stored in `~/.ante/sessions/{session_id}/` with atomic writes for crash safety.
 
-:::note
-Session resume is a TUI-only feature — it is not available in headless mode.
+:::tip
+You can also resume from the CLI with `ante --resume <SESSION_ID>` (or `-r`) in either TUI or headless mode. The session ID is printed when a TUI session exits.
 :::
 
 ## Keyboard shortcuts
@@ -150,12 +150,14 @@ If you paste multiple file paths, Ante auto-prefixes them with `@` for convenien
 ## CLI flags for TUI mode
 
 ```bash
-ante --model claude-sonnet-4-5
+ante --model claude-sonnet-4-6
 ante --provider openai
 ante --system-prompt "You are a Python expert"
 ante --append-system-prompt "Always use type hints"
 ante --allowed-tools Read Grep Glob
 ante --disallowed-tools Bash Write
+ante --yolo                       # skip all tool approvals
+ante --resume ses_01ARZ3NDEK...   # resume a previous session
 ```
 
 ## Streaming
