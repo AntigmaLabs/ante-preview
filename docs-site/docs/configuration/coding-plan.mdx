@@ -3,9 +3,17 @@ title: "Coding Plans"
 description: "Use third-party coding subscription plans with Ante"
 ---
 
-Many model providers — including Aliyun/Qwen, MiniMax, Kimi, ByteDance/Ark, z.ai, and more — offer affordable, generous coding plans with large monthly API quotas optimized for AI coding tools. Because these plans expose standard Anthropic or OpenAI-compatible endpoints, Ante works with them out of the box. The examples below use z.ai DevPack; other coding plans follow the same pattern.
+Many model providers — including Aliyun/Qwen, MiniMax, Kimi, ByteDance/Ark, z.ai, and more — offer affordable, generous coding plans with large monthly API quotas optimized for AI coding tools. Because these plans expose standard Anthropic or OpenAI-compatible endpoints, Ante works with them out of the box.
 
-## Anthropic-compatible
+## Ali Coding Plan (built-in)
+
+Ante has a built-in `ali-coding-plan` provider for Alibaba Cloud's Coding Plan. See [Provider setup](/configuration/providers#ali-coding-plan) for configuration and available models.
+
+## Generic coding plans
+
+The examples below use z.ai DevPack; other coding plans follow the same pattern.
+
+### Anthropic-compatible
 
 Use the `anthropic` provider with `MODEL_BASE_URL` pointing to the plan's endpoint.
 
@@ -18,7 +26,7 @@ export MODEL_BASE_URL="https://api.z.ai/api/anthropic"
 ante --provider anthropic --model glm-5-turbo -p "refactor the auth module"
 ```
 
-## OpenAI-compatible
+### OpenAI-compatible
 
 Use the `openai-compatible` provider with `MODEL_BASE_URL` pointing to the plan's endpoint.
 

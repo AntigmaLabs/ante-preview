@@ -19,6 +19,7 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 | Grok (xAI) | Responses API | Grok 4 |
 | Zai | OpenAI-compatible | GLM-4.7 |
 | Open Router | OpenAI-compatible | Multiple providers |
+| Ali Coding Plan | Messages API | Qwen, Kimi, GLM, MiniMax via DashScope |
 | Antix | OpenAI-compatible | Claude, GPT via Antigma (OAuth) |
 | Local | OpenAI-compatible | GGUF models |
 
@@ -36,6 +37,7 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 | `openrouter` | Open Router |
 | `xai` | Grok (xAI) |
 | `zai` | Zai |
+| `ali-coding-plan` | Ali Coding Plan |
 | `antix` | Antix |
 | `local` | Local models via llama.cpp |
 
@@ -61,6 +63,7 @@ You can set your provider in three ways (in order of precedence):
 | Grok | `XAI_API_KEY` env var |
 | Zai | `Z_AI_API_KEY` env var |
 | Open Router | `OPENROUTER_API_KEY` env var |
+| Ali Coding Plan | `ALI_CODING_PLAN_API_KEY` env var |
 | Antix | OAuth |
 | Local | No authentication needed |
 
@@ -114,6 +117,39 @@ ante --provider zai --model glm-4.7
 
 ```bash
 ante --provider openrouter --model deepseek/deepseek-reasoner
+```
+
+### Ali Coding Plan
+
+```bash
+ante --provider ali-coding-plan --model qwen3.5-plus
+```
+
+Available models: `qwen3.5-plus`, `qwen3.6-plus`, `kimi-k2.5`, `glm-5`, `MiniMax-M2.5`, `qwen3-coder-plus`, `qwen3-coder-next`
+
+Requires a [Coding Plan subscription](https://help.aliyun.com/zh/model-studio/coding-plan) and API key (format: `sk-sp-xxxxx`). Not all models are available on the default Anthropic wire endpoint — to use the OpenAI-compatible endpoint, add a custom catalog entry:
+
+```json
+{
+  "providers": {
+    "ali-coding-plan-oai": {
+      "name": "ali-coding-plan-oai",
+      "display_name": "Ali Coding Plan (OpenAI)",
+      "base_url": "https://coding.dashscope.aliyuncs.com/v1",
+      "auth": {
+        "bearer": {
+          "env_key": "ALI_CODING_PLAN_API_KEY"
+        }
+      },
+      "wire_style": "OpenAiCompatible",
+      "http_headers": {
+        "User-Agent": "ante-cli/1.0.0",
+        "X-DashScope-UserAgent": "coding-agent"
+      }
+    }
+  },
+  "models": {}
+}
 ```
 
 ### Antix
