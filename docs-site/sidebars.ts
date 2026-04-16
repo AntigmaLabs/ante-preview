@@ -11,7 +11,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Using Ante',
-      items: ['usage/tui', 'usage/headless', 'usage/serve'],
+      items: ['usage/tui', 'usage/headless', 'usage/serve', 'usage/gateway'],
     },
     {
       type: 'category',

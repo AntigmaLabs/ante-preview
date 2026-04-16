@@ -1,0 +1,134 @@
+---
+title: "Gateway Mode"
+description: "Run Ante as a bot in Slack or Discord"
+---
+
+Gateway mode runs Ante as a long-lived bot reachable from Slack, Discord, or both at the same time. Each conversation — a channel thread or DM — gets its own isolated agent session, so multiple users and teams can talk to Ante in parallel without crossing state.
+
+## Basic usage
+
+```bash
+ante gateway
+```
+
+This reads `~/.ante/channels.json`, connects to every platform you've enabled, and starts listening for messages.
+
+## Configuration
+
+Create `~/.ante/channels.json`. You can enable just Slack, just Discord, or both.
+
+```json
+{
+  "slack": {
+    "enabled": true,
+    "bot_token": "env:SLACK_BOT_TOKEN",
+    "app_token": "env:SLACK_APP_TOKEN",
+    "allow_from": "open"
+  },
+  "discord": {
+    "enabled": true,
+    "bot_token": "env:DISCORD_BOT_TOKEN",
+    "allow_from": ["123456789012345678"]
+  }
+}
+```
+
+Values beginning with `env:` are read from the environment at startup, so tokens stay out of the file.
+
+### Access control
+
+The `allow_from` field decides who the bot will respond to:
+
+| Value | Who can talk to the bot |
+| --- | --- |
+| `"open"` | Anyone on the workspace / server |
+| `["U123", "U456"]` | Only the listed user IDs |
+| *(omitted)* | Deny-all (safe default) |
+
+## Setting up Slack
+
+1. Create an app at [api.slack.com/apps](https://api.slack.com/apps) → **From scratch**.
+2. **Settings → Socket Mode**: enable it and create an App-Level Token with `connections:write`. Copy the `xapp-…` token — this is your `app_token`.
+3. **Features → OAuth & Permissions → Bot Token Scopes**: add `chat:write`, `app_mentions:read`, `channels:history`, `im:history`, `im:write`.
+4. **Features → Event Subscriptions**: enable events and subscribe to `message.channels` and `message.im`.
+5. **Features → App Home**: enable the Messages Tab and allow users to send messages there.
+6. **Settings → OAuth & Permissions → Install to Workspace**. Copy the `xoxb-…` Bot User OAuth Token — this is your `bot_token`.
+7. In each channel you want the bot in: `/invite @your-bot-name`.
+
+```bash
+export SLACK_BOT_TOKEN="xoxb-..."
+export SLACK_APP_TOKEN="xapp-..."
+```
+
+**Using the bot in Slack:** `@mention` it in a channel, or just DM it. Replies always come in a thread.
+
+:::note
+Anytime you change scopes or event subscriptions, you must **Reinstall to Workspace** for them to take effect.
+:::
+
+## Setting up Discord
+
+1. Create an application at [discord.com/developers/applications](https://discord.com/developers/applications) → **New Application**.
+2. **Bot**: copy the token — this is your `bot_token`. Under **Privileged Gateway Intents**, enable **Message Content Intent** (required).
+3. **OAuth2 → URL Generator**: under **Scopes** check `bot`; under **Bot Permissions** check `Send Messages`, `Read Message History`, `View Channels`. Open the generated URL to invite the bot to your server.
+
+```bash
+export DISCORD_BOT_TOKEN="..."
+```
+
+**Using the bot in Discord:** `@mention` it in a server channel, or just DM it. The bot replies as a reference to your message — reply to the bot's message to continue the conversation.
+
+## Talking to the bot
+
+Once the bot is in your workspace or server and the gateway is running, you chat with it like any other bot. A couple of replies have special meaning.
+
+You can interrupt the bot at any time by sending:
+
+| Command | Effect |
+| --- | --- |
+| `stop` | Cancel the current task (like Ctrl+C in the TUI) |
+
+When the bot asks permission to run a tool, reply with one of:
+
+| Reply | Effect |
+| --- | --- |
+| `yes` (or `y`) | Approve this tool call |
+| `no` (or `n`) | Skip this tool call |
+| `always` | Approve and allow this tool for the rest of the session |
+
+See [Approvals](/cookbook/approvals) for more on tool approval flows.
+
+## CLI reference
+
+```bash
+ante gateway [--config PATH] [--model MODEL] [--provider PROVIDER] [--output-format FORMAT]
+```
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--config` | `~/.ante/channels.json` | Path to the channels config file |
+| `--model` | `claude-sonnet-4-6` | LLM model to use for every session |
+| `--provider` | `anthropic` | Provider for the chosen model |
+| `--output-format` | `minimal` | Gateway stdout format: `minimal`, `human`, or `json` |
+
+### Output formats
+
+| Format | Shows |
+| --- | --- |
+| `minimal` | Agent messages, info, and errors only |
+| `human` | All events with colored formatting (useful for debugging) |
+| `json` | All events as JSON lines (useful for piping to another tool) |
+
+## Troubleshooting
+
+**Slack: "Sending messages to this app has been turned off"**
+Enable the Messages Tab under **App Home** and allow users to send messages from it, then Reinstall to Workspace.
+
+**Slack: bot doesn't respond to `@mentions` in a channel**
+Make sure the bot is invited to that channel (`/invite @bot-name`) and that `message.channels` is in your Event Subscriptions. Reinstall after changing events or scopes.
+
+**Discord: bot doesn't respond**
+Confirm **Message Content Intent** is enabled on the bot and that it has `Send Messages` and `Read Message History` permissions in the channel.
+
+**Gateway shows no output after a message**
+Run with `--output-format human` to see every event, and check `~/.ante/logs/` for error details.
