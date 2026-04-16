@@ -10,6 +10,17 @@ Rust client for [Claude Code](https://code.claude.com/docs/en/cli-reference),
 Other SDK
 -[Python SDK](https://github.com/anthropics/claude-agent-sdk-python).
 
+### Long-lived agent runtime
+
+The SDK turns Claude Code into a long-lived agent runtime. Instead of
+launching separate `claude -p "…"` invocations and stitching sessions back
+together with `--resume`, `Claude::connect` spawns a single subprocess that
+stays alive across turns. Call `query` or `send_user_text` as many times as
+you need — the underlying process, conversation history, and tool state
+persist for the lifetime of the connection. This makes it straightforward to
+build multi-turn agents, orchestration loops, and interactive applications on
+top of Claude Code.
+
 ### What it provides
 
 - `Claude::connect(options)` then `query` / `send_user_message` for sessions;
