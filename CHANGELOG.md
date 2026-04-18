@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.preview.13 - 2026-04-17
+
+- Add initial Claude Code SDK (agent-sdk)
+- Add offline mode support for headless, serve, and channel modes
+- Add offline mode loading progress bar
+- Promote Evt::UserInput to a protocol-level event
+- Refactor agent-sdk so CLI owns session id
+- Drop redundant search_incomplete field from GrepResult
+
 ## v0.preview.12 - 2026-04-14
 
 - Add `--resume` CLI flag and exit resume hint
