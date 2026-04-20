@@ -68,12 +68,6 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: ['antix/introduction', 'antix/concepts'],
     },
-    {
-      type: 'category',
-      label: 'Operators',
-      collapsed: false,
-      items: ['antix/ops/local-docker', 'antix/ops/gcp-deploy', 'antix/ops/configuration'],
-    },
   ],
 }
 

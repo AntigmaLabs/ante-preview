@@ -1,12 +1,12 @@
 ---
 title: "Welcome to Antix"
-description: "Antix is an enterprise-grade LLM Proxy, Identity Provider (IdP), and Workspace Manager built by Antigma."
+description: "Antix is an LLM Proxy, Identity Provider (IdP), and Workspace Manager built by Antigma."
 sidebar_position: 1
 ---
 
 # Introduction to Antix
 
-Welcome to **Antix**, Antigma's enterprise-grade LLM Proxy, Identity Provider, and Workspace Manager.
+Welcome to **Antix**, Antigma's LLM Proxy, Identity Provider, and Workspace Manager.
 
 While **Ante** brings powerful autonomous AI capabilities directly to your local terminal, **Antix** is the collaborative backend infrastructure that makes AI scalable, secure, and observable for teams. It acts as a unified gateway to manage models, govern organizations, issue budget-capped API keys, and track AI spend across your entire company.
 
@@ -23,13 +23,13 @@ It abstracts away the complexity of managing multiple AI vendor billing accounts
 Understanding these six pillars will help you get the most out of Antix:
 
 ### 1. Universal Model Routing & OpenAI Compatibility
-Antix acts as a seamless drop-in replacement for OpenAI. It translates provider-specific quirks into a standardized API schema. Whether you are routing a request to `anthropic/claude-3-5-sonnet` or `alibaba/qwen-max`, your application code remains identical. 
+Antix acts as a seamless OpenAI-compatible API. It translates provider-specific quirks into a standardized API schema. Whether you are routing a request to `anthropic/claude-3-5-sonnet` or `alibaba/qwen-max`, your application code remains identical. 
 * **Seamless Streaming:** Antix manages underlying streaming state machines to ensure Server-Sent Events (SSE) behave predictably, regardless of the upstream provider.
 * **Bring Your Own Key (BYOK):** Want to use your own negotiated rates? Pass a provider-specific header (e.g., `X-Antix-Provider: alibaba`) to route requests securely through your own accounts.
 
 ### 2. Organization & Workspace Management
 Antix is built from the ground up for multi-tenancy. **Organizations** allow you to group users, projects, and billing boundaries securely.
-* **Role-Based Access Control (RBAC):** Assign roles (Admin, Member, Viewer) to control who can provision keys or view financial analytics.
+* **Role-Based Access Control (RBAC):** Assign roles (Admin, Member) to control who can provision keys or view financial analytics.
 * **Workspaces:** Create isolated environments within an Org for different projects (e.g., `Frontend-Prod`, `Ante-CLI-Agents`).
 
 ### 3. Virtual Keys & Hard Budgets
@@ -52,19 +52,6 @@ For organizations using the **Ante CLI**, Antix serves as the centralized govern
 
 ---
 
-## Antix vs. Ante: Which do you need?
-
-Many teams use both, but they serve entirely different purposes:
-
-| Feature | Ante | Antix |
-| :--- | :--- | :--- |
-| **Primary Role** | Autonomous CLI Coding Agent | Enterprise LLM Gateway & Dashboard |
-| **Target Audience** | Individual Developers, Engineers | Workspace Admins, Product Teams, DevOps |
-| **Core Function** | Writes code, explores repos, runs tests | Routes LLM requests, enforces budgets, manages users |
-| **Deployment** | Installed locally via terminal | Hosted server / GCP / Local Docker |
-
----
-
 ## Choose Your Path
 
 Antix documentation is structured around your specific role and goals. Select the path that best matches what you are trying to do:
@@ -81,8 +68,3 @@ Antix documentation is structured around your specific role and goals. Select th
 * **[Budgeting & Guardrails](/antix/concepts#budgets):** Issue Virtual Keys and set hard spend limits to prevent bill shock.
 * **[Analytics & Observability](/antix/concepts#analytics):** View TTFT, error rates, and cost tracking dashboards.
 
-### ⚙️ For Operators: Deploy & Host Antix
-*You are an infrastructure engineer tasked with self-hosting the Antix stack.*
-* **[Local Docker Deployment](/antix/ops/local-docker):** Spin up Antix, PostgreSQL, ClickHouse, and Redis via `docker-compose`.
-* **[GCP Production Deployment](/antix/ops/gcp-deploy):** A step-by-step guide to deploying Antix securely on Google Cloud Run and Cloud SQL.
-* **[Environment Configuration](/antix/ops/configuration):** Comprehensive reference for `ANTIX_ENV` and core server flags.

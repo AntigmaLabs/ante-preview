@@ -11,7 +11,7 @@ This document provides detailed instructions, code examples, API specifications,
 
 ## 1. Universal Model Routing & BYOK {#routing}
 
-Antix acts as a seamless drop-in replacement for the OpenAI API. It automatically translates requests and normalizes streaming state machines (SSE) across different LLM providers (Anthropic, Google Gemini, Alibaba Qwen, xAI, etc.).
+Antix provides a seamless OpenAI-compatible API. It automatically translates requests and normalizes streaming state machines (SSE) across different LLM providers (Anthropic, Google Gemini, Alibaba Qwen, xAI, etc.).
 
 ### Base URLs & Endpoints
 Antix exposes standard OpenAI-compatible endpoints.
@@ -64,7 +64,7 @@ curl -X POST https://api.antigma.ai/v1/chat/completions \
 
 ## 2. Organization & Workspace Management {#organizations}
 
-Antix is designed for multi-tenant enterprise environments. **Organizations** form the top-level billing boundary, while **Workspaces** provide isolated environments for different teams, projects, or deployment stages.
+Antix is designed for multi-tenant environments. **Organizations** form the top-level billing boundary, while **Workspaces** provide isolated environments for different teams, projects, or deployment stages.
 
 ### The CBAC Role Model
 Antix enforces Capability-Based Access Control (CBAC) without adding latency to the hot path. Roles include:
@@ -142,7 +142,7 @@ Antix offloads analytics via a Dead Letter Queue (DLQ) to ensure zero impact on 
 
 ## 5. Privacy, Security & Data Retention
 
-For enterprise compliance, Antix enforces strict data security policies by default, matching or exceeding zero-retention standards.
+For compliance, Antix enforces strict data security policies by default, matching or exceeding zero-retention standards.
 
 *   **Zero-Retention Policy:** By default, Antix **does not log or retain prompt payloads or model responses**. Inference bodies are scrubbed from all ClickHouse logs and OpenTelemetry traces. 
 *   **In-Memory Processing:** Payload data is only held in memory in the Rust Axum server long enough to be proxied to the upstream provider and streamed back to the client.
@@ -176,7 +176,7 @@ Antix issues an `RS256` JWT with a 15-minute TTL and utilizes **Refresh Token Ro
 
 ## 7. Native Agent Integration (The Ante Control Plane)
 
-Antix acts as the centralized control plane for the **Ante CLI**, bringing enterprise governance to local coding agents. 
+Antix acts as the centralized control plane for the **Ante CLI**, bringing governance to local coding agents. 
 
 ### Connecting Ante to Antix
 Developers connect their local Ante instance to your corporate Antix server:
@@ -185,6 +185,6 @@ ante auth login
 ```
 This triggers a local OAuth flow, storing a Refresh Token in `~/.antix/auth.json`. Ante uses this to synthesize temporary Virtual Keys for code generation.
 
-### Enterprise Benefits
+### Benefits
 *   **Cost Attribution:** Every prompt run by an engineer's Ante CLI is tracked in Antix and attributed to their specific user ID.
 *   **Instant Offboarding:** When an employee leaves, an Admin revokes their access in the Antix dashboard. Because Ante relies on Antix's RTR, the developer's local CLI is instantly disconnected from the LLM APIs, preventing unauthorized post-employment usage.
