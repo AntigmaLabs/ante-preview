@@ -61,6 +61,20 @@ const sidebars: SidebarsConfig = {
       items: ['tools'],
     },
   ],
+  antix: [
+    {
+      type: 'category',
+      label: 'Antix',
+      collapsed: false,
+      items: ['antix/introduction', 'antix/concepts'],
+    },
+    {
+      type: 'category',
+      label: 'Operators',
+      collapsed: false,
+      items: ['antix/ops/local-docker', 'antix/ops/gcp-deploy', 'antix/ops/configuration'],
+    },
+  ],
 }
 
 export default sidebars
