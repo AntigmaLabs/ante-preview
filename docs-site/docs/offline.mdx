@@ -29,10 +29,44 @@ Ante includes an integrated inference engine powered by llama.cpp. When you sele
    - **Local models** — GGUF files already on your system (auto-discovered)
    - **Running servers** — attach to an already-running llama server on a local port
 
-4. **Or use the CLI flag:**
+4. **Or pass a model path directly** — skip the TUI and load a GGUF file in one step:
    ```bash
-   ante --provider local "your prompt here"
+   ante --offline-model /path/to/model.gguf "your prompt here"
    ```
+   Ante boots the llama-server, waits for it to be ready, then runs the session. Useful in scripts or CI.
+
+## Scripted and server usage
+
+### Headless (single session)
+
+Pass `--offline-model` to run a one-shot prompt against a local GGUF file — no TUI required:
+
+```bash
+ante --offline-model ~/.ante/models/qwen2.5-coder-7b-q4.gguf "Explain this code"
+```
+
+Ante starts the llama-server, waits for it to become ready, runs the session, then shuts the server down automatically.
+
+### Serve mode (WebSocket server)
+
+When running `ante serve`, you can load a model once and share it across all connecting clients:
+
+```bash
+ante serve --ws 127.0.0.1:9000 --offline-model ~/.ante/models/qwen2.5-coder-7b-q4.gguf
+```
+
+The llama-server starts before accepting connections, and each WebSocket client uses the same running server. The server shuts down cleanly on `Ctrl+C` or `SIGTERM`.
+
+## Loading progress
+
+When a model is downloading or being loaded into memory, Ante shows a real-time progress bar in the TUI with status messages:
+
+- **Download phase** — progress tracks bytes received against the total file size
+- **Metadata** — model metadata is being read from the GGUF file
+- **Tensor loading** — weights are being loaded into RAM/VRAM
+- **GPU offload** — layers are being transferred to the GPU (if available)
+
+The same progress is reported in headless mode via log output.
 
 ## Model discovery
 
@@ -119,3 +153,9 @@ All offline mode configuration is stored in `~/.ante/offline-config.json`:
 | `port` | Starting port for the llama server | `8080` |
 | `last_model` | Last used model (auto-saved) | — |
 | `model_preferences` | Per-model settings | — |
+
+### Environment variables
+
+| Variable | Description |
+|---|---|
+| `ANTE_OFFLINE_CONTEXT` | Override the default context window cap (tokens). Useful when you need a larger context than the 32K default, and your hardware has enough RAM. Example: `ANTE_OFFLINE_CONTEXT=65536 ante --offline-model ...` |
