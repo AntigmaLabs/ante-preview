@@ -15,7 +15,7 @@ Antix speaks four wire protocols — OpenAI Chat Completions, OpenAI Responses, 
 
 ## Getting a key
 
-Sign in at the Antix portal at `/portal` and create a Virtual Key from your dashboard. Portal-issued keys start with **`sk-antix-…`**.
+Sign in at the Antix portal at [https://antix.antigma.ai/portal](https://antix.antigma.ai/portal) and create a Virtual Key from your dashboard. Portal-issued keys start with **`sk-antix-…`**.
 
 Keys are stored securely; you see the plaintext exactly once at creation.
 
@@ -95,4 +95,4 @@ Not supported: `/v1/embeddings`, `/v1/audio/*`, `/v1/images/*`, `/v1/files`, fin
 
 - [Routing & BYOK](/antix/concepts/routing) — provider selection and OpenAI-compatible semantics.
 - [Virtual keys](/antix/concepts/virtual-keys) — provision keys with hard budgets and rate limits.
-- [Error handling](/antix/concepts/observability#errors) — standardized codes across providers.
+- [Error handling](/antix/concepts/error-handling) — standardized codes across providers.

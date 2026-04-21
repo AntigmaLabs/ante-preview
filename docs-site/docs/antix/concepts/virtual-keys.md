@@ -10,7 +10,7 @@ Never distribute raw provider keys. Antix issues **Virtual Keys** that act as mi
 
 ## Creating a key
 
-Keys can be generated directly from the Antix portal dashboard at `/portal`. 
+Keys can be generated directly from the Antix portal dashboard at [https://antix.antigma.ai/portal](https://antix.antigma.ai/portal). 
 
 When creating a key, you can configure:
 - **Models:** Restrict which models the key can access.
@@ -19,16 +19,8 @@ When creating a key, you can configure:
 
 Keys are stored securely — plaintext is returned **exactly once** at creation.
 
-## The BillingGuard
+## Reliable Billing
 
-Antix enforces budgets through a three-stage pipeline:
+Antix strictly enforces budgets to prevent overruns. Costs are estimated and reserved before any request goes upstream. If a request would exceed the key's `max_budget`, it is instantly rejected with a `402 Payment Required` error. 
 
-1. **Pre-flight estimation** — the pricing layer estimates token cost from the request body. If the model has no pricing row, the request is rejected with `503 model_not_priced`.
-2. **Atomic reservation** — atomically reserves the estimated cost against the key's current period. If it would exceed `max_budget`, the request is rejected with `402 Payment Required` before any upstream call.
-3. **Async settlement** — on completion, the difference between estimated and actual cost is reconciled. If the stream is cancelled mid-flight, the unused reservation is returned to the pool.
-
-This reserve/settle/release discipline eliminates double-spend and preserves fail-closed behavior under concurrent load.
-
-## Cost reconciliation
-
-Background tasks periodically reconcile fast-budgets against the durable spend ledger to prevent drift over long-running periods.
+Once a request completes or is cancelled, costs are accurately reconciled. This strict enforcement eliminates double-spending and ensures that your budget caps are strictly adhered to, even under heavy concurrent load.

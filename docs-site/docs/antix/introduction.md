@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # Antix
 
-**Antix** is Antigma's LLM Proxy, Identity Provider, and Organization Manager — the collaborative backend that makes AI scalable, secure, and observable for teams.
+**Antix** is Antigma's LLM Proxy, Identity Provider, and Organization Manager — the collaborative backend that makes AI scalable, secure, and reliable for teams.
 
 While [Ante](/) delivers autonomous AI capabilities to your local terminal, Antix is the control plane: a unified gateway that routes models across multiple wire protocols, governs organizations, issues budget-capped keys, and tracks AI spend across your company.
 
@@ -19,14 +19,11 @@ While [Ante](/) delivers autonomous AI capabilities to your local terminal, Anti
   <Card title="Hard-budget virtual keys" icon="shield-halved">
     Issue scoped `sk-antix-…` keys with atomic `max_budget` caps per day, month, or lifetime. Strict enforcement blocks overruns before upstream is called.
   </Card>
-  <Card title="Production observability" icon="chart-line">
-    Comprehensive metrics track TTFT, tokens, and costs without impacting hot-path latency.
-  </Card>
   <Card title="Ante control plane" icon="plug">
     Governance for local coding agents. Start `ante`, type `/connect`, and select Antix to securely authenticate your local agent, attributing every prompt.
   </Card>
   <Card title="Bring Your Own Key (BYOK)" icon="key">
-    Send your own provider credentials in `Authorization` and declare the provider with `X-Antix-Provider`. Antix routes, observes, and meters without re-billing.
+    Send your own provider credentials in `Authorization` and declare the provider with `X-Antix-Provider`. Antix routes and meters without re-billing.
   </Card>
 </CardGroup>
 
@@ -52,7 +49,7 @@ While [Ante](/) delivers autonomous AI capabilities to your local terminal, Anti
   <Card title="Organizations & RBAC" icon="users" href="/antix/concepts/organizations">
     Multi-tenant boundaries, roles, and admin APIs.
   </Card>
-  <Card title="Observability" icon="chart-line" href="/antix/concepts/observability">
-    TTFT, error codes, and telemetry.
+  <Card title="Error Handling" icon="circle-exclamation" href="/antix/concepts/error-handling">
+    Standardized error codes across providers.
   </Card>
 </CardGroup>

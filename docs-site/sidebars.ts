@@ -76,7 +76,7 @@ const sidebars: SidebarsConfig = {
         'antix/concepts/routing',
         'antix/concepts/organizations',
         'antix/concepts/virtual-keys',
-        'antix/concepts/observability',
+        'antix/concepts/error-handling',
         'antix/concepts/security',
       ],
     },

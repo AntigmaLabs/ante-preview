@@ -1,6 +1,6 @@
 ---
 title: "Organizations & RBAC"
-description: "Multi-tenant boundaries, roles, and the super-admin surface."
+description: "Multi-tenant boundaries and roles."
 sidebar_position: 2
 ---
 
@@ -20,7 +20,7 @@ Role enforcement ensures that operations are securely gated by checking the call
 
 ## Managing members
 
-Org Admins can invite members, assign roles, and configure organization settings (like default rate limits and allowed providers) directly from the Antix portal dashboard at `/portal`.
+Org Admins can invite members, assign roles, and configure organization settings (like default rate limits and allowed providers) directly from the Antix portal dashboard at [https://antix.antigma.ai/portal](https://antix.antigma.ai/portal).
 
 **Revocation**
 Access can be revoked instantly via the portal, which immediately invalidates all associated keys and active sessions for the offboarded member.

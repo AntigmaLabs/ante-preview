@@ -1,12 +1,12 @@
 ---
-title: "Observability & Errors"
-description: "Standardized error codes, metrics, and ClickHouse telemetry."
+title: "Error Handling"
+description: "Standardized error codes."
 sidebar_position: 4
 ---
 
-# Error Handling & Observability
+# Error Handling
 
-Because Antix sits on the critical path of your applications, understanding its error codes and metrics is essential.
+Because Antix sits on the critical path of your applications, understanding its error codes is essential.
 
 ## Standardized error codes {#errors}
 
