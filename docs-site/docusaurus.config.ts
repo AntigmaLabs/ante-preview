@@ -69,12 +69,6 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'docs',
-          position: 'left',
-          label: 'Ante',
-        },
-        {
-          type: 'docSidebar',
           sidebarId: 'antix',
           position: 'left',
           label: 'Antix',
