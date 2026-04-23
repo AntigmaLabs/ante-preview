@@ -71,6 +71,16 @@ message = client.messages.create(
 )
 ```
 
+## First request — Claude Code
+
+Claude Code speaks the Anthropic Messages protocol, so pointing it at Antix is a one-liner:
+
+```bash
+export ANTHROPIC_BASE_URL="https://antix.antigma.ai"
+```
+
+That's it — Claude Code's SDK reads both and routes all `/v1/messages` traffic to Antix, which passes it through to Anthropic with your platform key substituted.
+
 ## Supported endpoints
 
 | Endpoint | Method | Purpose |

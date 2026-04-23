@@ -44,6 +44,16 @@ response = client.chat.completions.create(
 
 A streaming pipeline normalizes SSE events across providers so token deltas, tool calls, and stop reasons arrive in a consistent shape regardless of upstream.
 
+### Claude Code
+
+Claude Code uses the Anthropic SDK internally, so redirecting it at Antix takes one environment variable:
+
+```bash
+export ANTHROPIC_BASE_URL="https://antix.antigma.ai"
+```
+
+That's it — Claude Code's SDK reads both and routes all `/v1/messages` traffic to Antix, which passes it through to Anthropic with your platform key substituted.
+
 ## Bring Your Own Key (BYOK)
 
 If you have negotiated direct rates with a provider but still want Antix's observability and routing, use BYOK. Send your provider key in `Authorization` and declare the provider with `X-Antix-Provider`:
