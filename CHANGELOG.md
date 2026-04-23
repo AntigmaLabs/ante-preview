@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.preview.15 - 2026-04-23
+
+- Enable vision for local GGUF models and refresh offline model catalog
+- Fix yolo resume bug
+- Support nested skill metadata
+- Add read-only bash permission heuristic
+- Align headless startup provider handling
+- Move message ID generation into OpMsg/EventMsg constructors
+- Consolidate llm_smoke around session-based tool-call path
+- Split antix into its own catalog module
+- Harden release workflow reproducibility and failure recovery
+- Move thinking option labels into TUI
+- Update connect and model command description
+
 ## v0.preview.14 - 2026-04-21
 
 - Add escape example of Ante and fix config reload bug
