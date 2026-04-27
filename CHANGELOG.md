@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.preview.16 - 2026-04-26
+
+- Add deepseek-4 model support
+- Update OpenAI and Gemini model presets
+- Split Antix API-key and subscription providers
+- Derive OAuth providers from catalog
+- Make local provider the default
+- Show and preserve current provider in model selector
+- Fix provider fallback resolution
+- Fix sync handling for deleted mapped paths
+
 ## v0.preview.15 - 2026-04-23
 
 - Enable vision for local GGUF models and refresh offline model catalog
