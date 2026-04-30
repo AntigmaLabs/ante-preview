@@ -71,6 +71,16 @@ message = client.messages.create(
 )
 ```
 
+## First request — Claude Code
+
+Claude Code speaks the Anthropic Messages protocol, so pointing it at Antix is a one-liner:
+
+```bash
+export ANTHROPIC_BASE_URL="https://antix.antigma.ai"
+```
+
+That's it — Claude Code's SDK reads both and routes all `/v1/messages` traffic to Antix, which passes it through to Anthropic with your platform key substituted.
+
 ## Supported endpoints
 
 | Endpoint | Method | Purpose |
@@ -91,8 +101,21 @@ Not supported: `/v1/embeddings`, `/v1/audio/*`, `/v1/images/*`, `/v1/files`, fin
 - **Virtual Key** — `Authorization: Bearer sk-antix-…` on proxy routes.
 - **BYOK** — send your own provider key in `Authorization` and set `X-Antix-Provider`. See [Routing](/antix/concepts/routing).
 
+## Tagging traffic with an Endpoint
+
+The base URLs above are shared across your organization. To get **per-application** spend, traces, and agent-session analytics, create an **Endpoint** in the portal and use its URL instead. An endpoint URL looks like:
+
+```
+https://antix.antigma.ai/v1/<endpoint_uuid>/<provider>
+```
+
+Every request through that URL is automatically tagged with the endpoint's ID, so the portal can break down cost, latency, and traces per endpoint. Authentication still uses your Virtual Key (or BYOK) — endpoints decide *where the traffic lands*, not *who pays*.
+
+See [Endpoints](/antix/concepts/endpoints) for creation, scopes, and the analytics tabs.
+
 ## Next steps
 
+- [Endpoints](/antix/concepts/endpoints) — per-application URLs with traces, spend, and agent sessions.
 - [Routing & BYOK](/antix/concepts/routing) — provider selection and OpenAI-compatible semantics.
 - [Virtual keys](/antix/concepts/virtual-keys) — provision keys with hard budgets and rate limits.
 - [Error handling](/antix/concepts/error-handling) — standardized codes across providers.
