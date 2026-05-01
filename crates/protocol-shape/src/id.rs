@@ -73,13 +73,29 @@ impl<'de> Deserialize<'de> for Id {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ParseIdError {
+    MissingSeparator,
+    InvalidUlid,
+}
+
+impl std::fmt::Display for ParseIdError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::MissingSeparator => write!(f, "missing separator"),
+            Self::InvalidUlid => write!(f, "invalid ULID"),
+        }
+    }
+}
+
+impl std::error::Error for ParseIdError {}
+
 impl std::str::FromStr for Id {
-    type Err = anyhow::Error;
+    type Err = ParseIdError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (prefix_str, ulid_str) =
-            s.split_once('_').ok_or_else(|| anyhow::anyhow!("Missing separator"))?;
-        let id = Ulid::from_string(ulid_str).map_err(|_| anyhow::anyhow!("Invalid ULID"))?;
+        let (prefix_str, ulid_str) = s.split_once('_').ok_or(ParseIdError::MissingSeparator)?;
+        let id = Ulid::from_string(ulid_str).map_err(|_| ParseIdError::InvalidUlid)?;
         Ok(Self { prefix: Self::clamp_prefix(prefix_str), id })
     }
 }
