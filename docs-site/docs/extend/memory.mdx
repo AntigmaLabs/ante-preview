@@ -7,7 +7,7 @@ Ante has a persistent memory system that lets the agent build up knowledge acros
 
 ## How it works
 
-Each project has a memory directory (typically `.ante/projects/<project-path>/memory/`). The key file is `MEMORY.md` — its contents are injected into the system prompt at the start of every conversation.
+Each project has a memory directory at `~/.ante/projects/<project-id>/memory/`, where `<project-id>` is a sanitized form of the project's absolute path. The key file is `MEMORY.md` — its contents are injected into the system prompt at the start of every conversation.
 
 ### Automatic behavior
 

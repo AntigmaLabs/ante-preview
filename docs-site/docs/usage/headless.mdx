@@ -55,6 +55,7 @@ ante [OPTIONS] [--prompt <PROMPT>]
 | `-r`, `--resume <SESSION_ID>` | Resume a previously saved session by its ID |
 | `--check` | Run a verification pass after the main task completes |
 | `--simple-agent` | Simple agent mode — uses a minimal system prompt with `PTY`, `ImageRead`, and `WebSearch` tools |
+| `--offline-model <PATH>` | Path to a local GGUF file. Boots a local llama-server, points the session at the `local` provider, and tears it down on exit |
 
 ## Output formats
 

@@ -59,6 +59,7 @@ The `allowed-tools` field also accepts a comma-separated string (`"Read, Glob, G
 
 | Directory | Scope |
 |---|---|
+| `~/.agents/skills/` | User-level (compat — loaded before `~/.ante/skills/`) |
 | `~/.ante/skills/` | User-level (available in all projects) |
 | `.agents/skills/` | Project-level |
 | `.ante/skills/` | Project-level |
@@ -88,13 +89,14 @@ my-skill/
 
 ## How skills are discovered
 
-Skills are discovered in precedence order (later overrides earlier):
+Skills are discovered in precedence order (later overrides earlier by skill name):
 
 1. System-level (built-in skills)
-2. `~/.ante/skills/` (user-level)
-3. `.agents/skills/` (project-level)
-4. `.ante/skills/` (project-level)
-5. `.claude/skills/` (project-level)
+2. `~/.agents/skills/` (user-level, compat)
+3. `~/.ante/skills/` (user-level)
+4. `.claude/skills/` (project-level, Claude Code compatibility)
+5. `.agents/skills/` (project-level)
+6. `.ante/skills/` (project-level)
 
 ## Using skills
 

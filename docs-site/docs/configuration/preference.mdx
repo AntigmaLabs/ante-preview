@@ -9,12 +9,16 @@ Ante stores user preferences in `~/.ante/settings.json`:
 
 ```json
 {
-  "model": "claude-sonnet-4-5",
+  "model": "claude-sonnet-4-6",
   "provider": "anthropic",
   "theme": "default",
   "policy": "default",
   "has_completed_onboarding": true,
-  "status_line": ["model-name", "current-dir"]
+  "status_line": ["model-name", "current-dir"],
+  "model_thinking": {
+    "claude-sonnet-4-6": "Enabled",
+    "gpt-5.4": "Deep"
+  }
 }
 ```
 
@@ -26,6 +30,7 @@ Ante stores user preferences in `~/.ante/settings.json`:
 | `policy` | Default permission policy (`default` or `yolo`) |
 | `has_completed_onboarding` | Whether the onboarding flow has been completed |
 | `status_line` | Items to display in the TUI status line footer (see below) |
+| `model_thinking` | Per-model thinking level overrides — keys are model names, values are `Disabled` / `Enabled` / `Deep` / `Max` |
 
 ### Status line
 
@@ -54,7 +59,14 @@ Settings can be overridden per-session via CLI flags.
 | `XAI_API_KEY` | API key for Grok (xAI) |
 | `OPENROUTER_API_KEY` | API key for Open Router |
 | `Z_AI_API_KEY` | API key for Zai |
-| `MODEL_BASE_URL` | Override the base URL for any provider |
+| `DEEPSEEK_API_KEY` | API key for DeepSeek |
+| `ALI_CODING_PLAN_API_KEY` | API key for Ali Coding Plan |
+| `ANTIX_API_KEY` | API key for Antix |
+| `MODEL_BASE_URL` | Global fallback base URL (overridden by per-provider vars below) |
+| `ANTHROPIC_BASE_URL` | Override the Anthropic base URL |
+| `OPENAI_BASE_URL` | Override the OpenAI base URL |
+| `OPENAI_COMPATIBLE_BASE_URL` | Override the base URL for the OpenAI Compatible provider |
+| `DEEPSEEK_BASE_URL` | Override the DeepSeek base URL |
 | `MODEL_TEMPERATURE` | Override model temperature (float) |
 | `MODEL_TOP_P` | Override model top_p sampling parameter (float) |
 | `MODEL_THINKING` | Override thinking mode (`none`, `enabled`, `deep`, `max`). These map to the protocol-level values `Disabled`, `Enabled`, `Deep`, `Max` respectively |
@@ -81,30 +93,32 @@ Settings can be overridden per-session via CLI flags.
 
 ```
 .ante/
-└── skills/            # Project-specific skills
+├── skills/            # Project-specific skills
+└── agents/            # Project-specific sub-agents
 
 .agents/
-└── skills/            # Project-specific skills
+├── skills/            # Project-specific skills
+└── agents/            # Project-specific sub-agents
 
 .claude/
-└── skills/            # Project-specific skills (Claude Code compatibility)
+├── skills/            # Project-specific skills (Claude Code compatibility)
+└── agents/            # Project-specific sub-agents (Claude Code compatibility)
 ```
 
-### Project memory (`.ante/projects/`)
+### Project memory (`~/.ante/projects/`)
+
+Project-scoped state — memory, persisted sessions, event logs — lives under `~/.ante/projects/<project-id>/`, where `<project-id>` is a sanitized form of the project's absolute path.
 
 ```
-.ante/
-└── projects/
-    └── <path>/
-        └── memory/
-            └── MEMORY.md   # Auto-memory for this project
+~/.ante/projects/
+└── <project-id>/
+    └── memory/
+        └── MEMORY.md      # Auto-memory for this project
 ```
 
 ### Temporary files
 
-```
-/tmp/ante/<project-hash>/   # Temp files scoped per project
-```
+Per-project temp files live under `~/.ante/cache/<project-id>/`.
 
 ## Precedence
 

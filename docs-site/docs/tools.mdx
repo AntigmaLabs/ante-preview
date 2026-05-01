@@ -102,7 +102,7 @@ WebSearch is not in the default tool set. Enable it via `--allowed-tools`.
 
 ## Default tool set
 
-The following tools are enabled by default: `Read`, `Bash`, `BashOutput`, `KillShell`, `Grep`, `Glob`, `TodoWrite`, `WebFetch`, `Edit`, `Write`, `Agent`.
+The following tools are enabled by default: `Read`, `Bash`, `BashOutput`, `KillShell`, `Grep`, `Glob`, `TodoWrite`, `WebFetch`, `Edit`, `Write`, `Agent`. When the binary is built with the `browser` feature, `Browser` is also enabled by default.
 
 Tools **not** in the default set (opt-in only): `WebSearch`, `ImageRead`, `PTY`. Enable them with `--allowed-tools`.
 
@@ -121,6 +121,13 @@ Interactive pseudoterminal for running interactive commands.
 - **Approval required**: No
 - **Opt-in**: Not in the default tool set. Enable via `--allowed-tools`.
 - **Key inputs**: Writes to and reads from a terminal session.
+
+### Browser
+
+Drive a Chromium browser for navigation, content extraction, and automation. Only available when Ante is built with the `browser` cargo feature.
+
+- **Approval required**: Yes
+- **Key inputs**: action-specific (e.g. `navigate`, `click`, `read_page`, `screenshot`)
 
 ## Tool filtering
 

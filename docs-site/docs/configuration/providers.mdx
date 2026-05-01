@@ -14,14 +14,15 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 | OpenAI | Responses API | GPT-5 family |
 | OpenAI Compatible | Chat Completions | Custom models |
 | OpenAI Subscription | Responses API | GPT-5 family (OAuth via Codex) |
-| Gemini | Gemini API | Gemini 3 family |
-| Vertex AI Gemini | Gemini API | Gemini 3 family |
+| Gemini | Gemini API | Gemini 3.1 family |
+| Vertex AI Gemini | Gemini API | Gemini 3.1 family |
 | Grok (xAI) | Responses API | Grok 4 |
-| Zai | OpenAI-compatible | GLM-4.7 |
+| Zai | OpenAI-compatible | GLM-5.1 |
 | Open Router | OpenAI-compatible | Multiple providers |
+| DeepSeek | OpenAI-compatible | DeepSeek V4 family |
 | Ali Coding Plan | Messages API | Qwen, Kimi, GLM, MiniMax via DashScope |
-| Antix | OpenAI-compatible | Claude, GPT via Antigma (OAuth) |
-| Local | OpenAI-compatible | GGUF models |
+| Antix | Anthropic Messages | Claude, GPT, Gemini, Qwen via Antigma |
+| Local | OpenAI-compatible | GGUF models via llama.cpp |
 
 ### Provider identifiers
 
@@ -37,8 +38,10 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 | `openrouter` | Open Router |
 | `xai` | Grok (xAI) |
 | `zai` | Zai |
+| `deepseek` | DeepSeek |
 | `ali-coding-plan` | Ali Coding Plan |
-| `antix` | Antix |
+| `antix` | Antix (API key) |
+| `antix-subscription` | Antix (OAuth) |
 | `local` | Local models via llama.cpp |
 
 ## Selecting a provider
@@ -63,8 +66,9 @@ You can set your provider in three ways (in order of precedence):
 | Grok | `XAI_API_KEY` env var |
 | Zai | `Z_AI_API_KEY` env var |
 | Open Router | `OPENROUTER_API_KEY` env var |
+| DeepSeek | `DEEPSEEK_API_KEY` env var |
 | Ali Coding Plan | `ALI_CODING_PLAN_API_KEY` env var |
-| Antix | OAuth |
+| Antix | `ANTIX_API_KEY` env var or OAuth |
 | Local | No authentication needed |
 
 :::tip
@@ -92,13 +96,15 @@ Available models: `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.3-codex`, `gpt-5-mini`, `gpt-
 ### Google Gemini
 
 ```bash
-ante --provider gemini --model gemini-3-flash-preview
+ante --provider gemini --model gemini-3.1-pro-preview
 ```
+
+Available models: `gemini-3.1-flash-lite-preview`, `gemini-3.1-pro-preview`
 
 ### Vertex AI Gemini
 
 ```bash
-ante --provider vertex-gemini --model gemini-3-flash-preview
+ante --provider vertex-gemini --model gemini-3.1-pro-preview
 ```
 
 ### Grok (xAI)
@@ -110,14 +116,24 @@ ante --provider xai --model grok-4-latest
 ### Zai
 
 ```bash
-ante --provider zai --model glm-4.7
+ante --provider zai --model glm-5.1
 ```
 
 ### Open Router
 
 ```bash
-ante --provider openrouter --model deepseek/deepseek-reasoner
+ante --provider openrouter --model anthropic/claude-sonnet-4.6
 ```
+
+Available models: `anthropic/claude-opus-4.6`, `anthropic/claude-sonnet-4.6`, `google/gemini-3.1-pro-preview`, `openai/gpt-5.4-pro`, `deepseek/deepseek-v4-flash`, `deepseek/deepseek-v4-pro`
+
+### DeepSeek
+
+```bash
+ante --provider deepseek --model deepseek-v4-flash
+```
+
+Available models: `deepseek-v4-flash`, `deepseek-v4-pro`. Set `DEEPSEEK_API_KEY` (and optionally `DEEPSEEK_BASE_URL`).
 
 ### Ali Coding Plan
 
@@ -125,7 +141,7 @@ ante --provider openrouter --model deepseek/deepseek-reasoner
 ante --provider ali-coding-plan --model qwen3.5-plus
 ```
 
-Available models: `qwen3.5-plus`, `qwen3.6-plus`, `kimi-k2.5`, `glm-5`, `MiniMax-M2.5`, `qwen3-coder-plus`, `qwen3-coder-next`
+Available models: `qwen3.5-plus`, `qwen3.6-plus`, `kimi-k2.5`, `glm-5.1`, `MiniMax-M2.5`, `qwen3-max-2026-01-23`, `qwen3-coder-plus`, `qwen3-coder-next`
 
 Requires a [Coding Plan subscription](https://help.aliyun.com/zh/model-studio/coding-plan) and API key (format: `sk-sp-xxxxx`). Not all models are available on the default Anthropic wire endpoint — to use the OpenAI-compatible endpoint, add a custom catalog entry:
 
@@ -155,8 +171,10 @@ Requires a [Coding Plan subscription](https://help.aliyun.com/zh/model-studio/co
 ### Antix
 
 ```bash
-ante --provider antix --model claude-sonnet-4-5
+ante --provider antix --model claude-sonnet-4-6
 ```
+
+Available models: `gemini-3.1-flash-lite-preview`, `gemini-3.1-pro-preview`, `qwen3.6-plus`, `claude-haiku-4-5`, `claude-sonnet-4-6`, `gpt-5.4`, `gpt-5.3-codex`. Use `--provider antix-subscription` for OAuth-backed access.
 
 ### Local models
 
@@ -168,8 +186,11 @@ ante --provider local
 
 ## Standalone models
 
+These specs are registered globally so you can pin them under any compatible provider (e.g. via `--provider openai-compatible`):
+
 | Model | Description | Context |
 |---|---|---|
+| `qwen3.6-plus` | Latest Qwen 3.6 Plus model | 1M |
 | `qwen3.5-plus` | Most powerful Qwen visual model | 1M |
 | `qwen-plus` | Fast and capable | 1M |
 | `kimi-k2.5` | Kimi K2.5 reasoning model | 262K |
@@ -224,9 +245,9 @@ Supported thinking modes: `Disabled`, `Enabled`, `Deep`, `Max`.
 
 Many LLM providers expose an OpenAI-compatible API (e.g., Together AI, Fireworks, Groq Cloud, Perplexity):
 
-1. Set the base URL:
+1. Set the base URL — the per-provider variable takes precedence over `MODEL_BASE_URL`:
    ```bash
-   export MODEL_BASE_URL="https://api.together.xyz/v1"
+   export OPENAI_COMPATIBLE_BASE_URL="https://api.together.xyz/v1"
    ```
 2. Set your API key:
    ```bash
@@ -236,6 +257,10 @@ Many LLM providers expose an OpenAI-compatible API (e.g., Together AI, Fireworks
    ```bash
    ante --provider openai-compatible --model meta-llama/Llama-3-70b-chat-hf
    ```
+
+:::tip
+Each preset provider also honors a dedicated base-URL env var: `ANTHROPIC_BASE_URL`, `OPENAI_BASE_URL`, `OPENAI_COMPATIBLE_BASE_URL`, `DEEPSEEK_BASE_URL`. These take precedence over the global `MODEL_BASE_URL`.
+:::
 
 :::tip
 When using third-party providers, make sure the model supports tool use (function calling). Ante relies on tool use for its agent capabilities.

@@ -101,15 +101,20 @@ See [Approvals](/cookbook/approvals) for more on tool approval flows.
 ## CLI reference
 
 ```bash
-ante gateway [--config PATH] [--model MODEL] [--provider PROVIDER] [--output-format FORMAT]
+ante gateway [--config PATH] [--model MODEL] [--provider PROVIDER] [--output-format FORMAT] [--offline-model PATH]
 ```
 
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--config` | `~/.ante/channels.json` | Path to the channels config file |
-| `--model` | `claude-sonnet-4-6` | LLM model to use for every session |
-| `--provider` | `anthropic` | Provider for the chosen model |
+| `--model` | `local` | LLM model to use for every session |
+| `--provider` | `local` | Provider for the chosen model |
 | `--output-format` | `minimal` | Gateway stdout format: `minimal`, `human`, or `json` |
+| `--offline-model` | — | Path to a local GGUF file. Boots a shared llama-server before accepting messages and routes every conversation through it (forces `--provider local --model local`) |
+
+:::tip
+The defaults assume a local llama-server. To use a hosted provider, pass `--provider` and `--model` explicitly (e.g. `ante gateway --provider anthropic --model claude-sonnet-4-6`).
+:::
 
 ### Output formats
 

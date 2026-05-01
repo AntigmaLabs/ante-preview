@@ -7,25 +7,32 @@ Sub-agents are specialized agents that the main agent can spawn to handle comple
 
 ## Built-in sub-agents
 
-Ante ships with two built-in sub-agents:
+Ante ships with three built-in sub-agents:
 
-### General
+### general
 
 A general-purpose agent for researching complex questions, searching for code, and executing multi-step tasks. The main agent delegates to this when it needs to perform a search it isn't confident about completing in a few tries.
 
-### Explorer
+### explorer
 
 A fast agent specialized for codebase exploration. It can quickly find files by patterns, search code for keywords, and answer structural questions about the codebase.
 
+### ante-guide
+
+An assistant for questions about Ante itself — features, configuration, the protocol, skills, and sub-agents. The main agent routes user questions about Ante's own functionality here.
+
 ## Creating custom sub-agents
 
-Create a markdown file in `~/.ante/agents/` with YAML frontmatter:
+Create a markdown file in `~/.ante/agents/` (user-level) or any of the project-level locations below with YAML frontmatter:
 
 ```markdown
 ---
-name: "security-reviewer"
-description: "Reviews code for security vulnerabilities and OWASP top 10 issues"
-color: "red"
+name: security-reviewer
+description: Reviews code for security vulnerabilities and OWASP top 10 issues
+tools:
+  - Read
+  - Grep
+  - Glob
 ---
 
 You are a security-focused code reviewer. Analyze the provided code for:
@@ -47,7 +54,6 @@ Provide findings with severity ratings and remediation steps.
 | `description` | Yes | What this agent does (shown to the main agent for delegation decisions) |
 | `model` | No | Override the LLM model for this agent |
 | `tools` | No | Restrict which tools this agent can use |
-| `color` | No | Display color in the TUI |
 
 ## How sub-agents work
 
@@ -72,9 +78,12 @@ When the main agent encounters a task that matches a sub-agent's description, it
 
 ## Discovery
 
-Sub-agents are discovered from:
+Sub-agents are discovered in precedence order (later overrides earlier by name):
 
-1. Built-in agents (General, Explorer)
-2. `~/.ante/agents/` directory
+1. Built-in agents (`general`, `explorer`, `ante-guide`)
+2. `~/.ante/agents/` (user-level)
+3. `.agents/agents/` (project-level)
+4. `.ante/agents/` (project-level)
+5. `.claude/agents/` (project-level, Claude Code compatibility)
 
-User-defined agents are loaded alongside the built-in ones. All available agents are registered at session initialization time.
+User and project agents are loaded alongside the built-in ones. All available agents are registered at session initialization time and refreshed via the `ExtensionRefreshed` protocol event.

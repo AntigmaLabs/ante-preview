@@ -101,6 +101,7 @@ ante.stdin.write(JSON.stringify({
 |---|---|
 | `--stdio` | Use JSONL over stdin/stdout (default) |
 | `--ws <ADDR>` | Serve the protocol over WebSocket |
+| `--offline-model <PATH>` | Boot a local llama-server with this GGUF model and register it as the `local` provider for every connecting client |
 
 :::note
 The `--prompt` flag cannot be used with `ante serve`. Use `UserInput` operations instead.

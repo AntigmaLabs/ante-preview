@@ -195,12 +195,33 @@ Request a graceful shutdown.
 { "op": "Shutdown", "id": "op_..." }
 ```
 
-### OfflineMode
+### RegisterLocalProvider
 
-Offline mode operations for local model management. See the [Offline Mode operations](#offlinemodeop) section.
+Register a running local inference server (e.g. an offline `llama-server` started by the client) as the `local` provider for this daemon. The model is optional — if provided, it pins the local provider to a specific `ModelSpec`; otherwise the local provider serves whatever model the server is hosting.
 
 ```json
-{ "op": { "OfflineMode": "Init" }, "id": "op_..." }
+{
+  "op": {
+    "RegisterLocalProvider": {
+      "port": 8080,
+      "model": null
+    }
+  },
+  "id": "op_..."
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `port` | `u16` | Port the local llama-server is listening on |
+| `model` | `ModelSpec?` | Optional model spec to pin the provider to |
+
+### RestoreLocalProvider
+
+Restore the previously registered local provider configuration after a session-level provider switch. Useful when the daemon needs to revert to a previously registered local server without re-supplying its port and model.
+
+```json
+{ "op": "RestoreLocalProvider", "id": "op_..." }
 ```
 
 ## Events (Daemon → Client)
@@ -216,7 +237,7 @@ Emitted when a session is initialized. Contains metadata about the active model,
   "event": {
     "SessionStart": {
       "model": { "name": "claude-sonnet-4-6", "max_tokens": 8192 },
-      "provider": "Anthropic",
+      "provider": "anthropic",
       "session_id": "ses_01ARZ...",
       "cwd": "/home/user/project"
     }
@@ -229,7 +250,7 @@ Emitted when a session is initialized. Contains metadata about the active model,
 | Field | Type | Description |
 |---|---|---|
 | `model` | `ModelSpec` | Active model specification |
-| `provider` | `ApiProvider` | Active provider |
+| `provider` | `string` | Active provider name (e.g. `"anthropic"`) |
 | `session_id` | `Id` | Unique session identifier |
 | `cwd` | `string` | Working directory path |
 
@@ -242,7 +263,7 @@ Emitted when the active session is updated in place (e.g. model changed via `Upd
   "event": {
     "SessionUpdated": {
       "model": { "name": "gpt-5.4" },
-      "provider": "OpenAI",
+      "provider": "openai",
       "session_id": "ses_01ARZ...",
       "cwd": "/home/user/project"
     }
@@ -494,40 +515,11 @@ User input recorded for session replay. This variant is written to the persisted
 { "event": { "UserInput": "explain what this project does" } }
 ```
 
-### Offline mode events
+### Offline mode and the protocol
 
-See the [OfflineModeEvt](#offlinemodeevt) section below.
+Local-model management (engine installation, model discovery, llama-server lifecycle) is **client-side**. It is driven through the in-process `OfflineSubsystem` API, not through the daemon protocol. The only daemon-facing surface for offline mode is `RegisterLocalProvider` / `RestoreLocalProvider` — the client starts a llama-server itself, then registers its port (and an optional `ModelSpec`) with the daemon.
 
-## Offline mode types
-
-### OfflineModeOp
-
-Operations for managing local/offline models.
-
-| Variant | Fields | Description |
-|---|---|---|
-| `Init` | — | Check llama.cpp status and discover local models |
-| `InstallEngine` | — | Download and install llama.cpp |
-| `UpgradeEngine` | — | Upgrade llama.cpp to a newer version |
-| `SetModelDirectory` | `path: string` | Set the local models directory |
-| `LoadModel` | `model: OfflineModel`, `prefs: ModelPreferences` | Load an offline model with preferences |
-| `AttachServer` | `port: u16`, `model_name: string` | Attach to a running llama server on a local port |
-| `StopServer` | — | Stop the offline inference server |
-| `KillLlamaServer` | — | Kill any running llama server (owned or external) on default ports |
-
-### OfflineModeEvt
-
-Events reporting offline mode status.
-
-| Variant | Fields | Description |
-|---|---|---|
-| `Init` | `engine_status`, `system_caps`, `local_models`, `verified_models`, `upgrade_available?`, `running_servers` | Initialization status report |
-| `InstallProgress` | `progress: u8`, `message: string` | Engine installation progress (0–100) |
-| `Installed` | `path: string` | Engine installation complete |
-| `ModelLoading` | `model_name: string`, `file_size_bytes: u64` | Model download in progress |
-| `ServerReady` | `port: u16`, `model_name: string`, `server_pid?: u32` | Offline server is ready to accept requests |
-| `LlamaServerKilled` | — | A llama server was killed (owned or external) |
-| `Error` | `message: string` | Offline mode error |
+See the [Offline Mode](/offline) page for the user-facing flows and the `--offline-model` CLI flag.
 
 ## Transport
 

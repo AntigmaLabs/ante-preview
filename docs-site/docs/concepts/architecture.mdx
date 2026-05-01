@@ -76,19 +76,21 @@ Ante is provider-agnostic. Each provider implements a common interface for sendi
 | OpenAI | Responses API | GPT-5 family |
 | OpenAI Compatible | Chat Completions | Custom models |
 | OpenAI Subscription | Responses API | GPT-5 family (OAuth via Codex) |
-| Gemini | Gemini API | Gemini 3 family |
-| Vertex AI Gemini | Gemini API | Gemini 3 family |
+| Gemini | Gemini API | Gemini 3.1 family |
+| Vertex AI Gemini | Gemini API | Gemini 3.1 family |
 | Grok (xAI) | Responses API | Grok 4 |
-| Zai | OpenAI-compatible | GLM-4.7 |
+| Zai | OpenAI-compatible | GLM-5.1 |
 | Open Router | OpenAI-compatible | Multiple providers |
-| Antix | OpenAI-compatible | Claude, GPT via Antigma (OAuth) |
-| Local | OpenAI-compatible | GGUF models |
+| DeepSeek | OpenAI-compatible | DeepSeek V4 family |
+| Ali Coding Plan | Messages API | Qwen, Kimi, GLM, MiniMax via DashScope |
+| Antix | Anthropic Messages | Claude, GPT, Gemini, Qwen via Antigma |
+| Local | OpenAI-compatible | GGUF models via llama.cpp |
 
 Providers are resolved from a catalog at session init time. The user can override via CLI flags (`--provider`, `--model`) or persistent settings.
 
 ### Authentication
 
-- **API keys** — Set via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `OPENAI_COMPATIBLE_API_KEY`, `Z_AI_API_KEY`, `VERTEX_GEMINI_API_KEY`)
+- **API keys** — Set via environment variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`, `OPENAI_COMPATIBLE_API_KEY`, `Z_AI_API_KEY`, `DEEPSEEK_API_KEY`, `ALI_CODING_PLAN_API_KEY`, `VERTEX_GEMINI_API_KEY`, `ANTIX_API_KEY`)
 - **OAuth** — Interactive OAuth flow supported for Anthropic, OpenAI, and Antix, handled through the TUI
 
 ## Tool system
@@ -150,8 +152,9 @@ Ante stores configuration and state across several locations:
 | `~/.ante/catalog.json` | Custom provider/model catalog |
 | `~/.ante/skills/` | User-level skills |
 | `~/.ante/agents/` | User-level sub-agents |
-| `.ante/` | Project-local configuration |
-| `.ante/projects/` | Project memory directory |
-| `/tmp/ante/` | Temporary files scoped per project |
+| `~/.ante/sessions/<session-id>/` | Persisted sessions (for `/resume` and `--resume`) |
+| `~/.ante/projects/<project-id>/memory/` | Per-project auto-memory |
+| `~/.ante/cache/<project-id>/` | Per-project temporary files |
+| `.ante/` | Project-local configuration (skills, sub-agents) |
 
 The `ANTE_HOME` environment variable can override the home config directory.
