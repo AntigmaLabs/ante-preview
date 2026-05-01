@@ -101,16 +101,6 @@ pub struct ToolEnd {
     pub is_error: bool,
 }
 
-impl ToolEnd {
-    pub fn tool_use_id(&self) -> &str {
-        &self.tool_use_id
-    }
-
-    pub fn is_error(&self) -> bool {
-        self.is_error
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ReviewDecision {
     Accept,
