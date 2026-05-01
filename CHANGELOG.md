@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.preview.17 - 2026-05-01
+
+- Add Windows compatibility
+- Add provider-specific base URL env vars
+- Add extra llamacpp args
+- Update offline models
+- Optimize dialog clone storage
+- Trim ToolEnd shims and dedupe assistant-part emission
+- Wire runtime protocol to shape types and prune protocol shape crate
+- Collapse and tighten protocol helper call sites
+- Fix DeepSeek-v4 interruption bug
+- Fix empty message deletion on interrupt
+- Fix small issues uncovered by DeepSeek testing
+- Fix thinking correspondence
+- Dependency updates
+
 ## v0.preview.16 - 2026-04-26
 
 - Add deepseek-4 model support
