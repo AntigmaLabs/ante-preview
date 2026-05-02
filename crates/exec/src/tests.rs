@@ -1,11 +1,12 @@
 use crate::{
     CommandOptions, ExecRequest, PollRequest, PoolConfig, ProcessPool, StdinRequest, Stream,
-    run_with_timeout, subprocess,
+    kill_by_pid, run_with_timeout, subprocess,
 };
 use anyhow::Result;
 use std::time::Duration;
 use tempfile::tempdir;
 use tokio::io::AsyncWriteExt;
+use tokio::process::Command;
 use tokio::sync::broadcast::error::{RecvError, TryRecvError};
 use tokio::time::{sleep, timeout};
 
@@ -102,6 +103,66 @@ async fn terminate_stops_long_running_process() -> Result<()> {
 
     assert!(handle.has_exited());
     assert_ne!(handle.exit_code(), Some(0));
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn kill_by_pid_stops_process_group_descendants() -> Result<()> {
+    let cwd = tempdir()?;
+    let marker = cwd.path().join("process_group_marker");
+    let mut command = Command::new("sh");
+    command
+        .args(["-c", "(sleep 0.5; printf marker > process_group_marker) & sleep 30"])
+        .current_dir(cwd.path())
+        .kill_on_drop(false);
+    subprocess::configure_child_process_isolation(&mut command);
+
+    let mut child = command.spawn()?;
+    let pid = child.id().expect("spawned process should have a pid");
+
+    kill_by_pid(pid)?;
+    timeout(Duration::from_secs(5), child.wait()).await??;
+    sleep(Duration::from_millis(800)).await;
+
+    assert!(!marker.exists(), "descendant survived kill_by_pid and wrote {marker:?}");
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn terminate_child_process_group_stops_descendants() -> Result<()> {
+    let cwd = tempdir()?;
+    let marker = cwd.path().join("terminate_group_marker");
+    let mut command = Command::new("sh");
+    command
+        .args(["-c", "(sleep 0.5; printf marker > terminate_group_marker) & sleep 30"])
+        .current_dir(cwd.path())
+        .kill_on_drop(false);
+    subprocess::configure_child_process_isolation(&mut command);
+
+    let mut child = command.spawn()?;
+
+    subprocess::terminate_child_process_group(&mut child);
+    timeout(Duration::from_secs(5), child.wait()).await??;
+    sleep(Duration::from_millis(800)).await;
+
+    assert!(!marker.exists(), "descendant survived group termination and wrote {marker:?}");
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn dropping_process_handle_terminates_running_process() -> Result<()> {
+    let cwd = tempdir()?;
+    let marker = cwd.path().join("drop_marker");
+    let args = vec!["-c".to_string(), "sleep 0.5; printf marker > drop_marker".to_string()];
+
+    let (handle, _) = subprocess::spawn(CommandOptions::new("sh", cwd.path()).args(args)).await?;
+    drop(handle);
+    sleep(Duration::from_millis(800)).await;
+
+    assert!(!marker.exists(), "process survived handle drop and wrote {marker:?}");
     Ok(())
 }
 
