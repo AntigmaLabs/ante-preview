@@ -142,6 +142,32 @@ pub struct ExtensionRefreshed {
     pub session_id: Id,
     pub skills: Vec<SkillMetadata>,
     pub subagents: Vec<SubagentMetadata>,
+    #[serde(default)]
+    pub mcp_servers: Vec<McpServerInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpServerInfo {
+    pub name: String,
+    pub command: String,
+    pub args: Vec<String>,
+    pub tools: Vec<McpToolInfo>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpToolInfo {
+    pub name: String,
+    pub qualified_name: String,
+    pub description: String,
+    pub parameters: Vec<McpToolParam>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpToolParam {
+    pub name: String,
+    pub param_type: String,
+    pub required: bool,
+    pub description: String,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -309,6 +335,7 @@ mod tests {
             session_id: Id::new("ses"),
             skills: Vec::new(),
             subagents: Vec::new(),
+            mcp_servers: Vec::new(),
         }));
 
         let json = serde_json::to_string(&event).expect("serialize ExtensionRefreshed");

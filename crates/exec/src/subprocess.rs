@@ -174,17 +174,7 @@ pub async fn spawn(options: CommandOptions) -> Result<SpawnedProcess> {
         command.stdin(Stdio::null());
     }
 
-    #[cfg(unix)]
-    {
-        let parent_pid = unsafe { libc::getpid() };
-        unsafe {
-            command.pre_exec(move || {
-                process_group::detach_from_tty()?;
-                process_group::set_parent_death_signal(parent_pid)?;
-                Ok(())
-            });
-        }
-    }
+    configure_child_process_isolation(&mut command);
 
     let mut child = command
         .spawn()
@@ -214,6 +204,32 @@ pub async fn spawn(options: CommandOptions) -> Result<SpawnedProcess> {
     Ok((handle, output_rx))
 }
 
+/// Configure process isolation and parent-death handling for a child command.
+#[cfg(unix)]
+pub fn configure_child_process_isolation(command: &mut Command) {
+    let parent_pid = unsafe { libc::getpid() };
+    unsafe {
+        command.pre_exec(move || {
+            process_group::detach_from_tty()?;
+            process_group::set_parent_death_signal(parent_pid)?;
+            Ok(())
+        });
+    }
+}
+
+/// No-op on non-Unix platforms.
+#[cfg(not(unix))]
+pub fn configure_child_process_isolation(_command: &mut Command) {}
+
+/// Best-effort termination for a spawned child and its isolated process group.
+pub fn terminate_child_process_group(child: &mut Child) {
+    if let Some(pid) = child.id() {
+        let _ = process_group::kill_by_pid(pid);
+    }
+
+    let _ = child.start_kill();
+}
+
 fn spawn_stdin_writer(mut stdin: ChildStdin) -> mpsc::Sender<Vec<u8>> {
     let (tx, mut rx) = mpsc::channel::<Vec<u8>>(STDIN_CHANNEL_CAPACITY);
     tokio::spawn(async move {
@@ -235,8 +251,7 @@ struct PidTerminator {
 
 impl ChildTerminator for PidTerminator {
     fn terminate(&mut self) {
-        let _ = process_group::terminate_process_group(self.pid);
-        let _ = process_group::kill_process_group_by_pid(self.pid);
+        let _ = process_group::kill_by_pid(self.pid);
     }
 }
 

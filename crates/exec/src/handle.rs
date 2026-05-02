@@ -101,3 +101,11 @@ impl ProcessHandle {
         }
     }
 }
+
+impl Drop for ProcessHandle {
+    fn drop(&mut self) {
+        if !self.has_exited() {
+            self.terminate();
+        }
+    }
+}
