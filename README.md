@@ -34,9 +34,9 @@ Ante is designed for the **cellular-native** thesis: agents lightweight enough t
 
 Docker resource usage across 20 parallel tasks (Ante vs Claude Code vs Opencode):
 
-![Resource Usage Comparison](docs-site/static/assets/compare_animated.gif)
+![Resource Usage Comparison](benchmarks/compare_animated.gif)
 
-Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [benchmark details](docs-site/docs/benchmarks/eval.mdx) for the evaluation methodology and results.
+Across 20 parallel tasks, Ante uses **~7× less peak memory**, **~9× less average CPU**, and generates **~5× less total disk I/O** than Claude Code — while completing the same workload. See the [comparison table](benchmarks/compare_table.md) and the [benchmark details](docs-site/docs/benchmarks/eval.mdx) for the evaluation methodology and results.
 
 ## Quick Start
 
