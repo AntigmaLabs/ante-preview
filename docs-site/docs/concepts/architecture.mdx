@@ -109,19 +109,19 @@ pub trait Tool: Send + Sync {
 
 | Tool | Category | Approval | Description |
 |---|---|---|---|
-| `Read` | File I/O | No | Read file contents |
+| `Read` | File I/O | No | Read text, image, or PDF file contents |
 | `Write` | File I/O | Yes | Create or overwrite files |
 | `Edit` | File I/O | Yes | Exact string replacement in files |
 | `Glob` | File I/O | No | Find files by pattern |
 | `Grep` | File I/O | No | Search file contents with regex |
-| `Bash` | Shell | Yes | Execute shell commands |
-| `BashOutput` | Shell | No | Read output from background shells |
-| `KillShell` | Shell | Yes | Terminate background shells |
+| `Bash` | Shell | Yes | Execute shell commands; supports `run_in_background` for long-running processes |
+| `PTY` | Shell | No | Drive a persistent tmux session for interactive programs (opt-in) |
 | `Agent` | Builtin | No | Spawn sub-agent for complex tasks |
 | `TodoWrite` | Builtin | No | Manage task lists |
 | `WebFetch` | Builtin | Yes | Fetch and process web content |
-| `WebSearch` | Builtin | Yes | Search the web |
+| `WebSearch` | Builtin | Yes | Search the web (opt-in) |
 | `ImageRead` | Builtin | No | Read and analyze images (opt-in) |
+| `Browser` | Web | Yes | Drive Chromium via CDP (requires `browser` cargo feature) |
 
 ### Tool filtering
 
