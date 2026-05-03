@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.preview.18 - 2026-05-02
+
+- Add MCP (Model Context Protocol) support
+- Add browser features
+- Replace BashOutput/KillShell tools with status file
+- Differentiate Bash foreground and background output
+- Add explicit bash background flag
+- Unwrap nested bash -lc wrappers before exec and rule matching
+- Preserve bash output head and tail with mid-omission marker
+- Restore Windows WSL skip and trim bash preview hot path
+- Refactor shell detection handling
+- Move bash tests to integration suite with isolated shell
+- Refine Bash tool description
+- Avoid duplicate shell tool updates
+
 ## v0.preview.17 - 2026-05-01
 
 - Add Windows compatibility
