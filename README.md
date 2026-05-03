@@ -23,6 +23,7 @@ Ante is an AI-native, cloud-native, local-first agent runtime built by [Antigma 
 - **Native local models** — Built-in local inference integration. No API keys, no internet, no data leaving your device.
 - **Zero vendor lock-in** — Bring your own API key or local model. Switch between 12+ providers freely. No account required.
 - **Client-daemon architecture** — Run as an interactive TUI, headless CLI, or long-lived server (`ante serve`).
+- **Channel integrations** — Run Ante as a Slack or Discord bot with `ante gateway`.
 - **Multi-agent orchestration** — Spawn sub-agents, coordinate complex tasks across independent, decentralized, or centralized architectures.
 - **Extensible** — Custom skills, sub-agents, and persistent memory across sessions.
 - **Benchmark proven** — Topped the Terminal Bench 1.0 and 2.0 leaderboards. Public, reproducible evals.
@@ -66,14 +67,30 @@ git diff | ante -p "review this for security issues"
 # Use a different provider
 ante --provider openai --model gpt-5.4 -p "refactor the database module"
 
-# Run fully offline with a local model
-ante --provider local -p "add error handling to src/main.rs"
+# Resume a saved session
+ante --resume ses_01ARZ3NDEKTSV4RRFFQ69G5FAV -p "now add tests"
+
+# Run fully offline with a local GGUF model
+ante --offline-model ~/.ante/models/Qwen3.5-9B-Q4_K_M.gguf \
+  -p "add error handling to src/main.rs"
 ```
 
 ### Server Mode
 
 ```sh
 ante serve
+```
+
+### Gateway Mode
+
+```sh
+ante gateway
+```
+
+### Update Ante
+
+```sh
+ante update
 ```
 
 ## Example Usages with TUI
@@ -192,6 +209,7 @@ For one-on-one agent interactions, runtime overhead like memory usage and I/O is
 But our vision is much bigger: millions of agents self-organizing and communicating at massive scale. At that point, even small inefficiencies get multiplied millions or billions of times, so runtime optimization becomes economically significant.
 </details>
 
+<details>
 <summary><b>Can I run Ante completely offline?</b></summary>
 
 Yes. Ante has a built-in llama.cpp engine that runs GGUF models locally. It handles engine installation, model discovery, and memory management automatically. No API keys or internet connection required.
