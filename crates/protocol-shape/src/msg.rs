@@ -48,16 +48,40 @@ pub enum Evt {
     MessageDelta(String),
     ThinkingDelta(String),
     Info(String),
+    /// Open a grouped Info entry with `header`. Subsequent
+    /// `InfoBlockAppend` events with the same `id` are rendered as
+    /// tree-indented child lines under it. Use for multi-step background
+    /// notifications (e.g. MCP warm-up) that should visually cluster.
+    InfoBlockStart {
+        id: String,
+        header: String,
+    },
+    /// Append a child detail line to the `InfoBlockStart` with the same `id`.
+    /// Drops silently if the matching block isn't present.
+    InfoBlockAppend {
+        id: String,
+        detail: String,
+    },
     Error(String),
     ToolStart(ToolUse),
     ToolUpdate(ToolUpdate),
     ToolEnd(ToolEnd),
     CompactStart,
     CompactEnd,
-    TurnStart { turn_id: Id },
-    TurnPause { turn_id: Id, reason: TurnPauseReason },
-    TurnEnd { turn_id: Id, status: TurnEndStatus },
-    UsageUpdate { usage: Usage },
+    TurnStart {
+        turn_id: Id,
+    },
+    TurnPause {
+        turn_id: Id,
+        reason: TurnPauseReason,
+    },
+    TurnEnd {
+        turn_id: Id,
+        status: TurnEndStatus,
+    },
+    UsageUpdate {
+        usage: Usage,
+    },
     Goodbye,
 }
 
