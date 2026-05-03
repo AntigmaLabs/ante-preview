@@ -78,12 +78,56 @@ impl HeadTailBuffer {
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut out = Vec::with_capacity(self.retained_bytes());
+        self.append_retained_to(&mut out, None);
+        out
+    }
+
+    pub fn to_bytes_with_omission_marker(&self, marker: &[u8]) -> Vec<u8> {
+        let marker_bytes = if self.omitted_bytes > 0 { marker.len() } else { 0 };
+        let mut out = Vec::with_capacity(self.retained_bytes() + marker_bytes);
+        self.append_retained_to(&mut out, Some(marker));
+
+        out
+    }
+
+    fn append_retained_to(&self, out: &mut Vec<u8>, marker: Option<&[u8]>) {
         for chunk in &self.head {
             out.extend_from_slice(chunk);
+        }
+        if self.omitted_bytes > 0
+            && let Some(marker) = marker
+        {
+            out.extend_from_slice(marker);
         }
         for chunk in &self.tail {
             out.extend_from_slice(chunk);
         }
+    }
+
+    /// Return up to `max_bytes` from the end of the retained content
+    /// (head followed by tail), preserving order. Avoids allocating the full
+    /// buffer when only a suffix is needed.
+    pub fn suffix_bytes(&self, max_bytes: usize) -> Vec<u8> {
+        let take = max_bytes.min(self.retained_bytes());
+        if take == 0 {
+            return Vec::new();
+        }
+
+        let mut out = vec![0u8; take];
+        let mut written = 0;
+        for chunk in self.tail.iter().rev().chain(self.head.iter().rev()) {
+            if written == take {
+                break;
+            }
+            let remaining = take - written;
+            let n = chunk.len().min(remaining);
+            let chunk_start = chunk.len() - n;
+            let dst_end = take - written;
+            let dst_start = dst_end - n;
+            out[dst_start..dst_end].copy_from_slice(&chunk[chunk_start..]);
+            written += n;
+        }
+
         out
     }
 
@@ -187,6 +231,54 @@ mod tests {
         assert_eq!(buffer.to_bytes(), b"abcde56789".to_vec());
         assert_eq!(buffer.retained_bytes(), 10);
         assert_eq!(buffer.omitted_bytes(), 5);
+    }
+
+    #[test]
+    fn omission_marker_is_inserted_between_head_and_tail() {
+        let mut buffer = HeadTailBuffer::new(12);
+        buffer.push_chunk(b"abcdef".to_vec());
+        buffer.push_chunk(b"ghij".to_vec());
+        buffer.push_chunk(b"klmnop".to_vec());
+
+        assert_eq!(
+            buffer.to_bytes_with_omission_marker(b"\n...[truncated]...\n"),
+            b"abcdef\n...[truncated]...\nklmnop".to_vec()
+        );
+    }
+
+    #[test]
+    fn omission_marker_is_not_inserted_without_omitted_bytes() {
+        let mut buffer = HeadTailBuffer::new(12);
+        buffer.push_chunk(b"abcdef".to_vec());
+
+        assert_eq!(
+            buffer.to_bytes_with_omission_marker(b"\n...[truncated]...\n"),
+            b"abcdef".to_vec()
+        );
+    }
+
+    #[test]
+    fn suffix_bytes_returns_last_n_across_chunks() {
+        let mut buffer = HeadTailBuffer::new(64);
+        buffer.push_chunk(b"abc".to_vec());
+        buffer.push_chunk(b"defgh".to_vec());
+        buffer.push_chunk(b"ij".to_vec());
+
+        assert_eq!(buffer.suffix_bytes(0), Vec::<u8>::new());
+        assert_eq!(buffer.suffix_bytes(1), b"j".to_vec());
+        assert_eq!(buffer.suffix_bytes(4), b"fghij".to_vec()[1..].to_vec());
+        assert_eq!(buffer.suffix_bytes(100), b"abcdefghij".to_vec());
+    }
+
+    #[test]
+    fn suffix_bytes_spans_head_when_tail_is_short() {
+        let mut buffer = HeadTailBuffer::new(12);
+        buffer.push_chunk(b"abcdef".to_vec());
+        buffer.push_chunk(b"ghij".to_vec());
+        buffer.push_chunk(b"klmnop".to_vec());
+
+        // Retained content is "abcdef" ++ "klmnop"; suffix should walk into the head.
+        assert_eq!(buffer.suffix_bytes(8), b"efklmnop".to_vec());
     }
 
     #[test]
