@@ -43,7 +43,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Experimental',
-      items: ['offline', 'agent-org'],
+      items: ['experimental/offline', 'experimental/agent-org'],
     },
     {
       type: 'category',
@@ -58,7 +58,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Reference',
-      items: ['tools'],
+      items: ['reference/cli-reference', 'reference/tools-reference'],
     },
   ],
   antix: [
