@@ -7,7 +7,7 @@ edition = "2024"
 serde = "1.0.228"
 serde_json = "1.0.145"
 thiserror = "2.0.17"
-tokio = { version = "1.48.0", features = ["io-util", "macros", "process", "rt-multi-thread"] }
+tokio = { version = "1.52.1", features = ["io-util", "macros", "process", "rt-multi-thread"] }
 which = "8.0.0"
 
 [dev-dependencies]

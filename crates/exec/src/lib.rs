@@ -15,8 +15,7 @@ pub use pool::{
 pub use process_group::kill_by_pid;
 pub use receiver::OutputReceiver;
 pub use subprocess::{
-    CommandOptions, RunOutput, StdinMode, configure_child_process_isolation, run_with_timeout,
-    terminate_child_process_group,
+    CommandOptions, RunOutput, StdinMode, run_with_timeout, terminate_child_process_group,
 };
 
 pub(crate) fn lock_or_recover<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {

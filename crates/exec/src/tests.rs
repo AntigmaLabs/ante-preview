@@ -116,7 +116,12 @@ async fn kill_by_pid_stops_process_group_descendants() -> Result<()> {
         .args(["-c", "(sleep 0.5; printf marker > process_group_marker) & sleep 30"])
         .current_dir(cwd.path())
         .kill_on_drop(false);
-    subprocess::configure_child_process_isolation(&mut command);
+    unsafe {
+        command.pre_exec(|| {
+            crate::process_group::detach_from_tty()?;
+            Ok(())
+        });
+    }
 
     let mut child = command.spawn()?;
     let pid = child.id().expect("spawned process should have a pid");
@@ -139,7 +144,12 @@ async fn terminate_child_process_group_stops_descendants() -> Result<()> {
         .args(["-c", "(sleep 0.5; printf marker > terminate_group_marker) & sleep 30"])
         .current_dir(cwd.path())
         .kill_on_drop(false);
-    subprocess::configure_child_process_isolation(&mut command);
+    unsafe {
+        command.pre_exec(|| {
+            crate::process_group::detach_from_tty()?;
+            Ok(())
+        });
+    }
 
     let mut child = command.spawn()?;
 
