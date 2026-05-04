@@ -56,9 +56,21 @@ MCP tools are registered **after** `--allowed-tools` filtering, so a restrictive
 
 ## Lifecycle
 
-When a session starts, Ante connects to all configured servers in parallel with a 30-second handshake timeout. Servers that fail to connect are logged as warnings and skipped — the session proceeds with whichever servers succeeded.
+MCP warm-up runs **lazily** in the background so the daemon stays responsive. When a session starts:
 
-Each connected server's tool list is fetched and registered. Server processes are kept alive for the duration of the session and terminated when the daemon exits.
+1. `SessionStart` and the initial `ExtensionRefreshed` fire immediately — the input is usable right away.
+2. A background task connects to all configured servers in parallel (30-second handshake timeout each).
+3. As each server's tools are discovered they are added to the live tool registry; tools that come online become callable on the **next turn** (in-flight turns hold a frozen snapshot).
+4. A second `ExtensionRefreshed` is emitted once warm-up finishes so the `/mcp` panel populates with each server's discovered tool list.
+
+Progress is surfaced to the user via a grouped notification (an `InfoBlockStart` plus follow-up `InfoBlockAppend` events — see the [protocol reference](/reference/protocol-reference#infoblockstart)):
+
+```
+* Warming up 4 MCP servers in the background — tools will become available as they connect.
+  └ MCP ready: 4/4 servers connected, 60 tools registered.
+```
+
+Servers that fail to connect (or fail to list their tools) are logged, skipped, and reported as a child line under the warm-up block. Server processes are kept alive for the duration of the session and terminated when the daemon exits.
 
 ## The `/mcp` command
 

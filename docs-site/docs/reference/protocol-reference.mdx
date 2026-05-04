@@ -455,7 +455,7 @@ Emitted when dialog compaction completes.
 
 #### ExtensionRefreshed
 
-Emitted when skills, subagents, and MCP servers are refreshed. This is also sent after `SessionStart` to deliver the initial set of extensions.
+Emitted when skills, subagents, or MCP servers are refreshed. Sent at least twice during a normal session: once right after `SessionStart` with the initial skills/subagents (and `mcp_servers: []`), and again after MCP warm-up completes in the background with the discovered server and tool list.
 
 ```json
 {
@@ -508,6 +508,36 @@ General informational message.
 
 ```json
 { "event": { "Info": "Compacting conversation history..." } }
+```
+
+#### InfoBlockStart
+
+Opens a grouped Info entry with a header. Subsequent `InfoBlockAppend` events sharing the same `id` render as tree-indented child lines under it — used for multi-step background notifications (e.g. MCP warm-up) that should visually cluster.
+
+```json
+{
+  "event": {
+    "InfoBlockStart": {
+      "id": "mcp-warmup-ses_01ARZ...",
+      "header": "Warming up 4 MCP servers in the background — tools will become available as they connect."
+    }
+  }
+}
+```
+
+#### InfoBlockAppend
+
+Appends a child detail line to the `InfoBlockStart` with the same `id`. Drops silently if the matching block isn't present.
+
+```json
+{
+  "event": {
+    "InfoBlockAppend": {
+      "id": "mcp-warmup-ses_01ARZ...",
+      "detail": "MCP ready: 4/4 servers connected, 60 tools registered."
+    }
+  }
+}
 ```
 
 #### Error
