@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.preview.21 - 2026-05-06
+
+- Add TUI provider selector
+- Simplify model selector
+- Add DeepSeek support for OpenRouter
+- Add random logo variants on startup
+
+## v0.preview.19 - 2026-05-04
+
+- Improve DeepSeek support
+- Lazy MCP tool registration so daemon doesn't block on warm-up
+- Render MCP tool output as readable text
+- Let background bash survive parent exit
+- Fix public sync messages derivation from tracked paths
+- Fix duplicate auth in public sync
+- Dependency updates
+
 ## v0.preview.18 - 2026-05-02
 
 - Add MCP (Model Context Protocol) support
