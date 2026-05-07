@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.preview.22 - 2026-05-06
+
+- Add nightly release channel
+- Split stable and latest release channels
+- Fix OpenRouter streaming for thinking (reasoning) parts
+
 ## v0.preview.21 - 2026-05-06
 
 - Add TUI provider selector
