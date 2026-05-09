@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.preview.23 - 2026-05-08
+
+- Paste images from clipboard with Ctrl+V
+- Add update channel override
+- Log panic crash reports
+- Refactor release artifact publishing and smoke tests
+- Refine Dependabot dependency grouping
+- Dependency updates
+
 ## v0.preview.22 - 2026-05-06
 
 - Add nightly release channel
@@ -200,6 +209,3 @@
 - Adjust OpenAI reasoning effort mapping
 - Dependency updates
 
-## v0.preview.1 - 2026-03-06
-
-- Initial preview release
