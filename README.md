@@ -47,6 +47,9 @@ Ante is distributed as a single, self-contained binary with no external dependen
 
 ```sh
 curl -fsSL https://ante.run/install.sh | bash
+
+# Install a specific release channel
+curl -fsSL https://ante.run/install.sh | bash -s -- nightly
 ```
 
 ### Interactive TUI
@@ -91,6 +94,9 @@ ante gateway
 
 ```sh
 ante update
+
+# One-off update from a different channel
+ante update --channel nightly
 ```
 
 ## Example Usages with TUI
