@@ -81,6 +81,10 @@ pub enum Evt {
     },
     UsageUpdate {
         usage: Usage,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        model: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        provider: Option<String>,
     },
     Goodbye,
 }
@@ -431,5 +435,38 @@ mod tests {
         assert_eq!(usage.total(), 41);
         assert_eq!(usage.cache_read_tokens, Some(7));
         assert_eq!(usage.cache_creation_tokens, Some(8));
+    }
+
+    #[test]
+    fn usage_update_deserializes_without_model_context() {
+        let json = r#"{"UsageUpdate":{"usage":{"input_tokens":10,"output_tokens":5}}}"#;
+
+        let decoded = serde_json::from_str::<Evt>(json).expect("deserialize legacy UsageUpdate");
+
+        assert!(matches!(
+            decoded,
+            Evt::UsageUpdate { usage, model: None, provider: None }
+                if usage.input_tokens == 10 && usage.output_tokens == 5
+        ));
+    }
+
+    #[test]
+    fn usage_update_serializes_model_context() {
+        let event = Evt::UsageUpdate {
+            usage: Usage::new(10, 5),
+            model: Some("claude-sonnet-4-6".to_string()),
+            provider: Some("anthropic".to_string()),
+        };
+
+        let json = serde_json::to_string(&event).expect("serialize UsageUpdate");
+        let decoded = serde_json::from_str::<Evt>(&json).expect("deserialize UsageUpdate");
+
+        assert!(matches!(
+            decoded,
+            Evt::UsageUpdate { usage, model: Some(model), provider: Some(provider) }
+                if usage.total() == 15
+                    && model == "claude-sonnet-4-6"
+                    && provider == "anthropic"
+        ));
     }
 }
