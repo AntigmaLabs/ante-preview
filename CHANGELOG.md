@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.preview.24 - 2026-05-10
+
+- Fix OpenAI subscription streaming requests
+- Fix Unicode clipping in diff viewer
+- Persist update channel overrides, including on install failure
+
 ## v0.preview.23 - 2026-05-08
 
 - Paste images from clipboard with Ctrl+V
