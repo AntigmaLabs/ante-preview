@@ -28,11 +28,24 @@ pub enum Op {
     Interrupt,
     UserInput(String),
     Steer(String),
-    ApprovalResponse { turn_id: Id, responses: Vec<(String, ReviewDecision)> },
-    SlashCommand { name: String, args: String },
-    ResumeSession { session_id: Id },
-    RegisterLocalProvider { port: u16, model: Option<ModelSpec> },
+    ApprovalResponse {
+        turn_id: Id,
+        responses: Vec<(String, ReviewDecision)>,
+    },
+    SlashCommand {
+        name: String,
+        args: String,
+    },
+    ResumeSession {
+        session_id: Id,
+    },
+    RegisterLocalProvider {
+        port: u16,
+        model: Option<ModelSpec>,
+    },
     RestoreLocalProvider,
+    /// Manually trigger conversation compaction on the active session.
+    Compact,
     Shutdown,
 }
 
@@ -52,9 +65,15 @@ pub enum Evt {
     /// `InfoBlockAppend` events with the same `id` are rendered as
     /// tree-indented child lines under it. Use for multi-step background
     /// notifications (e.g. MCP warm-up) that should visually cluster.
+    ///
+    /// When `loading` is true the renderer appends an animated `.`/`../...`
+    /// suffix to the header until the first `InfoBlockAppend` arrives,
+    /// signalling that background work is still in flight.
     InfoBlockStart {
         id: String,
         header: String,
+        #[serde(default)]
+        loading: bool,
     },
     /// Append a child detail line to the `InfoBlockStart` with the same `id`.
     /// Drops silently if the matching block isn't present.
@@ -148,10 +167,19 @@ pub struct SubagentMetadata {
     pub scope: Scope,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ProviderSpec {
+    pub name: String,
+    pub display_name: String,
+    pub base_url: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub preferred_models: Vec<ModelSpec>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SessionInitialized {
     pub model: ModelSpec,
-    pub provider: String,
+    pub provider: ProviderSpec,
     pub session_id: Id,
     pub cwd: PathBuf,
 }
@@ -316,7 +344,8 @@ pub enum Scope {
 #[cfg(test)]
 mod tests {
     use super::{
-        Evt, ExtensionRefreshed, Id, ModelSpec, Op, SessionInitialized, SessionUpdate, Usage,
+        Evt, ExtensionRefreshed, Id, ModelSpec, Op, ProviderSpec, SessionInitialized,
+        SessionUpdate, Usage,
     };
     use std::path::PathBuf;
 
@@ -331,6 +360,15 @@ mod tests {
             stop_sequences: None,
             context_limit: None,
             thinking: None,
+        }
+    }
+
+    fn provider_spec(name: &str) -> ProviderSpec {
+        ProviderSpec {
+            name: name.to_string(),
+            display_name: name.to_string(),
+            base_url: format!("https://api.{name}.test/v1"),
+            preferred_models: vec![model_spec("preferred-model")],
         }
     }
 
@@ -393,7 +431,7 @@ mod tests {
         let session_id = Id::new("ses");
         let event = Evt::SessionUpdated(Box::new(SessionInitialized {
             model: model_spec("claude-sonnet-4-6"),
-            provider: "anthropic".to_string(),
+            provider: provider_spec("anthropic"),
             session_id,
             cwd: PathBuf::from("/tmp/session-updated"),
         }));
@@ -405,7 +443,9 @@ mod tests {
             decoded,
             Evt::SessionUpdated(payload)
                 if payload.model.name == "claude-sonnet-4-6"
-                    && payload.provider == "anthropic"
+                    && payload.provider.name == "anthropic"
+                    && payload.provider.base_url == "https://api.anthropic.test/v1"
+                    && payload.provider.preferred_models.len() == 1
                     && payload.session_id == session_id
                     && payload.cwd == std::path::Path::new("/tmp/session-updated")
         ));

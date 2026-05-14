@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.preview.26 - 2026-05-13
+
+- Animate the `/compact` info block header while compaction runs
+- Show installer download progress
+- Use CDN URLs in release manifests
+- Include provider metadata in session events
+
+## v0.preview.25 - 2026-05-13
+
+- Add /compact slash command
+- Recover from output-token-limit truncation: keep streamed text and show a hint to send "continue"
+- Auto-compact and retry once when OpenAI requests exceed the context window
+- Fix pager and resume overlays not resizing with the terminal
+
 ## v0.preview.24 - 2026-05-10
 
 - Fix OpenAI subscription streaming requests
