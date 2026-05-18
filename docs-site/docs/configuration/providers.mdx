@@ -102,7 +102,7 @@ The `openai` and `openai-subscription` providers can stream responses two ways:
 | `http_sse` (HTTP + SSE) | `https://api.openai.com/v1/responses` (or the subscription equivalent) | ✅ |
 | `websocket_auto` (persistent WebSocket) | `wss://.../v1/responses` | opt-in |
 
-WebSocket mode keeps one connection open per session and continues each turn with `previous_response_id` plus only the new input items. In long agentic tool loops this eliminates per-turn round-trip latency.
+WebSocket mode keeps one connection open per session and continues each turn with `previous_response_id` plus only the new input items. In long agentic tool loops this eliminates per-turn round-trip latency. See OpenAI's [WebSocket mode guide](https://developers.openai.com/api/docs/guides/websocket-mode) for the underlying protocol.
 
 Opt in via the process-scoped env var (default is `http_sse`):
 
