@@ -93,6 +93,36 @@ ante --provider openai --model gpt-5.4
 
 Available models: `gpt-5.4`, `gpt-5.4-pro`, `gpt-5.3-codex`, `gpt-5-mini`, `gpt-5-nano`
 
+#### OpenAI transports
+
+The `openai` and `openai-subscription` providers can stream responses two ways:
+
+| Transport | Endpoint | Default |
+|---|---|---|
+| `http_sse` (HTTP + SSE) | `https://api.openai.com/v1/responses` (or the subscription equivalent) | ✅ |
+| `websocket_auto` (persistent WebSocket) | `wss://.../v1/responses` | opt-in |
+
+WebSocket mode keeps one connection open per session and continues each turn with `previous_response_id` plus only the new input items. In long agentic tool loops this eliminates per-turn round-trip latency.
+
+Opt in via the process-scoped env var (default is `http_sse`):
+
+```bash
+ANTE_OPENAI_TRANSPORT=websocket_auto ante --provider openai --model gpt-5-mini
+```
+
+Accepted values: `http_sse`, `websocket_auto`. Unknown values warn and fall back to `http_sse`.
+
+Notes:
+
+- WS only engages on streaming turns (TUI sessions). Headless `--prompt` mode uses non-streaming `chat()` and bypasses WS by design.
+- Any transient WS failure (connect timeout, network blip) falls back to HTTP/SSE for that turn — users never see hard errors caused by the transport choice. Auth failures (`401`/`403`) flip the entire session to HTTP/SSE for the rest of its lifetime.
+- Works against both `api.openai.com` (API-key) and the ChatGPT subscription backend at `chatgpt.com/backend-api/codex`.
+- To verify which transport is active: in debug builds, toggle the debug panel (`Ctrl+L`) and check the **Info** tab for the `OpenAI Transport:` line. Otherwise grep your session log for `transport selected`:
+
+  ```bash
+  grep "transport selected" ~/.ante/logs/ante.*.log.*
+  ```
+
 ### Google Gemini
 
 ```bash
