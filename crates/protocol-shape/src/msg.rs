@@ -1,3 +1,4 @@
+use std::fmt;
 use std::path::PathBuf;
 
 use chrono::{DateTime, Utc};
@@ -246,6 +247,37 @@ pub struct ToolUse {
     pub signature: Option<String>,
 }
 
+impl fmt::Display for ToolUse {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.name)?;
+        if let serde_json::Value::Object(obj) = &self.args {
+            let mut first = true;
+            for (k, v) in obj {
+                if v.is_null() {
+                    continue;
+                }
+                f.write_str(if first { "(" } else { ", " })?;
+                first = false;
+                let rendered = v.to_string();
+                write!(f, "{k}={}", elide(&rendered, 16))?;
+            }
+            if !first {
+                f.write_str(")")?;
+            }
+        }
+        Ok(())
+    }
+}
+
+fn elide(s: &str, max: usize) -> std::borrow::Cow<'_, str> {
+    if s.chars().count() <= max {
+        return std::borrow::Cow::Borrowed(s);
+    }
+    let mut out: String = s.chars().take(max.saturating_sub(1)).collect();
+    out.push('…');
+    std::borrow::Cow::Owned(out)
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ModelSpec {
     pub name: String,
@@ -345,7 +377,7 @@ pub enum Scope {
 mod tests {
     use super::{
         Evt, ExtensionRefreshed, Id, ModelSpec, Op, ProviderSpec, SessionInitialized,
-        SessionUpdate, Usage,
+        SessionUpdate, ToolUse, Usage,
     };
     use std::path::PathBuf;
 
@@ -449,6 +481,38 @@ mod tests {
                     && payload.session_id == session_id
                     && payload.cwd == std::path::Path::new("/tmp/session-updated")
         ));
+    }
+
+    #[test]
+    fn tool_use_display_examples() {
+        let tu = |name: &str, args: serde_json::Value| ToolUse {
+            id: "1".into(),
+            name: name.into(),
+            args,
+            signature: None,
+        };
+
+        // Typical: null fields are skipped.
+        assert_eq!(
+            tu(
+                "Bash",
+                serde_json::json!({
+                    "command": "ls -la",
+                    "timeout": null,
+                    "run_in_background": false,
+                }),
+            )
+            .to_string(),
+            r#"Bash(command="ls -la", run_in_background=false)"#,
+        );
+
+        // All-null and empty objects render as the bare name.
+        assert_eq!(tu("Noop", serde_json::json!({ "x": null })).to_string(), "Noop");
+        assert_eq!(tu("Noop", serde_json::json!({})).to_string(), "Noop");
+
+        // Long values get elided.
+        let long = tu("Run", serde_json::json!({ "command": "x".repeat(200) })).to_string();
+        assert!(long.ends_with("…)"), "expected elision, got {long:?}");
     }
 
     #[test]
