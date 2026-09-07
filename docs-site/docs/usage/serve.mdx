@@ -42,7 +42,7 @@ One host owns a socket path at a time. Ownership is an exclusive lock on a `.loc
 ante serve --ws 127.0.0.1:8080
 ```
 
-The `--ws` flag starts a WebSocket server on the given address. Each connection gets its own daemon instance. The server loops accepting new connections until a client sends a `Shutdown` operation.
+The `--ws` flag starts a WebSocket server on the given address. Each client gets its own connection and session on the shared host. The server loops accepting new connections until a client sends a `Shutdown` operation.
 
 :::note
 The transport flags are mutually exclusive — pick one of `--stdio`, `--sock`, or `--ws`.
@@ -54,12 +54,12 @@ The address must be a loopback address (`127.0.0.0/8` or `::1`). Ante refuses to
 
 ## How it works
 
-1. The daemon starts and waits for operations on stdin
+1. The host starts and waits for operations on the selected transport
 2. Send a `StartSession` operation to initialize a session with your chosen model and provider
 3. Send `UserInput` operations to submit prompts
-4. Receive streaming events — thinking deltas, message deltas, tool calls, approvals — on stdout
+4. Receive streaming events — thinking deltas, message deltas, tool calls, approvals — on the same connection
 5. Respond to `TurnPause` events with `ApprovalResponse` to approve or deny tool calls
-6. Send `Shutdown` (or close stdin) to gracefully stop the daemon
+6. Send `Shutdown` (or disconnect) to close the connection gracefully; on stdio and WebSocket, `Shutdown` also ends the serving process
 
 See the [Protocol Reference](/reference/protocol-reference) for the complete message catalog and wire format.
 

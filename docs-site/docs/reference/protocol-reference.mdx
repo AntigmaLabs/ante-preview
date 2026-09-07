@@ -791,7 +791,7 @@ For external clients using `ante serve` (or `ante serve --stdio`), `StdioTranspo
 
 For clients that dial a host someone else is running, `ante serve --sock [PATH]` listens on a Unix domain socket (default `run/serve.sock` in the Ante home) and exchanges the same JSONL protocol over the stream:
 
-- Each connection gets its own daemon instance
+- Each client gets its own connection and at most one active session on the shared host
 - `Op::Shutdown` ends only that connection; the host keeps accepting new ones
 - The host process exits on `SIGINT` or `SIGTERM`
 - Ownership is an exclusive lock on a `.lock` file beside the socket, so a second host on the same path refuses to start rather than displacing the live one; a stale socket left by a crashed host holds no lock and is replaced
@@ -800,9 +800,9 @@ For clients that dial a host someone else is running, `ante serve --sock [PATH]`
 
 For networked or browser-based clients using `ante serve --ws <ADDR>`, `WsTransport` exchanges the same JSONL protocol over WebSocket frames:
 
-- Each WebSocket connection gets its own daemon instance
+- Each WebSocket client gets its own connection and session on the shared host
 - Messages are the same `OpMsg` and `EventMsg` JSON objects, sent as text frames
-- **Client disconnect** → Daemon instance shuts down, server accepts next connection
+- **Client disconnect** → That connection and session shut down; the server accepts the next client
 - **`Op::Shutdown` received** → Connection and server both exit
 - The server loops accepting new connections until a `Shutdown` is received
 

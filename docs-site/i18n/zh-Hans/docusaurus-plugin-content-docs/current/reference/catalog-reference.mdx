@@ -105,7 +105,7 @@ ANTE_OPENAI_TRANSPORT=websocket_auto ante --provider openai --model gpt-5.4-mini
 
 | 模型 ID | 说明 | 上下文大小 |
 |---|---|---|
-| `gemini-3.8-flash` | Gemini 3.8 Flash，适用于快速智能体与多模态工作流 | 1.05M |
+| `gemini-3.8-flash` | Gemini 3.8 Flash，适用于长程编码与自主智能体 | 1.05M |
 | `gemini-3.7-flash` | Gemini 3.7 Flash，适用于快速智能体与多模态工作流 | 1.05M |
 | `gemini-3.6-flash` | Gemini 3.6 Flash，适用于智能体与多模态工作流 | 1M |
 | `gemini-3.1-pro-preview` | 具备深度思考能力的 Gemini 3.1 Pro | 1M |
@@ -145,7 +145,7 @@ Open Router 拆分为共享同一 API 密钥的三个提供商（按协议方言
 | 模型 ID | 说明 | 上下文大小 |
 |---|---|---|
 | `deepseek/deepseek-v4-flash-0731` | DeepSeek V4 Flash 0731 | 1.05M |
-| `google/gemini-3.8-flash` | Gemini 3.8 Flash 快速多模态智能体工作流 | 1.05M |
+| `google/gemini-3.8-flash` | Gemini 3.8 Flash，适用于长程编码与自主智能体 | 1.05M |
 | `google/gemini-3.7-flash` | Gemini 3.7 Flash 快速多模态智能体工作流 | 1.05M |
 | `x-ai/grok-4.6` | 通过 OpenRouter 调用的 Grok 4.6 旗舰推理模型 | 500K |
 | `qwen/qwen3.8-max` | 通义千问 3.8 旗舰多模态推理模型 | 1M |
@@ -163,14 +163,14 @@ Open Router 拆分为共享同一 API 密钥的三个提供商（按协议方言
 
 `openrouter-responses` 提供 `openai/gpt-5.6-sol`、`openai/gpt-5.6-sol-pro`、`openai/gpt-5.6-terra`、`openai/gpt-5.6-terra-pro`、`openai/gpt-5.6-luna` 和 `openai/gpt-5.6-luna-pro`（1.05M 上下文），以及 `openai/gpt-5.3-codex`（400K 上下文）。带有 `-pro` 后缀的 ID 会走 OpenRouter 的专业推理路由。
 
-`openrouter-anthropic` 通过 Anthropic Messages 协议提供 Claude 家族：`anthropic/claude-haiku-4.5`（200K 上下文），以及 `anthropic/claude-sonnet-5`、`anthropic/claude-opus-5`、`anthropic/claude-opus-5-fast`、`anthropic/claude-fable-5-1`（1M 上下文）。
+`openrouter-anthropic` 通过 Anthropic Messages 协议提供 Claude 家族：`anthropic/claude-haiku-4.5`（200K 上下文），以及 `anthropic/claude-sonnet-5`、`anthropic/claude-opus-5`、`anthropic/claude-opus-5-fast`、`anthropic/claude-fable-5.1`（1M 上下文）。
 
 每个提供商还可以通过完整 ID 调用 [Open Router 模型列表](https://openrouter.ai/models) 中的任意模型，只要其符合该提供商的协议格式即可。
 
 ```bash
 ante --provider openrouter --model deepseek/deepseek-v4-pro-0813
 ante --provider openrouter-responses --model openai/gpt-5.6-sol
-ante --provider openrouter-anthropic --model anthropic/claude-fable-5-1
+ante --provider openrouter-anthropic --model anthropic/claude-fable-5.1
 ```
 
 ### DeepSeek {#deepseek}
@@ -228,7 +228,7 @@ ante --provider ali-coding-plan --model qwen3.5-plus
 
 | 模型 ID | 说明 | 上下文大小 |
 |---|---|---|
-| `gemini-3.5-flash` | Gemini 3.5 Flash，适用于智能体工作流 | 1M |
+| `gemini-3.7-flash` | Gemini 3.7 Flash，适用于快速智能体与多模态工作流 | 1M |
 | `grok-4.5` | Grok 4.5，xAI 专为代码与智能体打造的旗舰 | 500K |
 | `grok-4.6` | Grok 4.6 旗舰推理模型 | 500K |
 | `kimi-k3` | Kimi K3 旗舰多模态推理模型 | 1M |
@@ -236,17 +236,20 @@ ante --provider ali-coding-plan --model qwen3.5-plus
 | `qwen3.7-plus` | 最新 Qwen 3.7 Plus | 1M |
 | `gemini-3.1-pro-preview` | 具备深度思考的 Gemini 3.1 Pro | 1M |
 | `claude-haiku-4-5` | 快速且高能力 | 200K |
-| `claude-sonnet-4-6` | 快速且高能力 | 200K |
-| `claude-opus-4-8` | 最强能力，推理深入 | 200K |
+| `claude-sonnet-5` | 速度与智能的最佳平衡 | 1M |
+| `claude-opus-5` | 复杂智能体编码与企业级任务 | 1M |
 | `claude-fable-5-1` | 最强大的 Claude 模型 | 1M |
 | `gpt-5.3-codex` | 针对代码深度优化的 Codex 模型 | — |
+| `gpt-5.4-mini` | 更快、更经济的 GPT-5.4 模型 | 400K |
+| `gpt-5.4-nano` | GPT-5.4 家族最小轻量模型 | 400K |
 | `deepseek-v4-flash` | 高速 DeepSeek V4 Flash | 1M |
 | `deepseek-v4-pro` | 具备深度思考的 DeepSeek V4 Pro | 1M |
-| `glm-5.2` | 最新 GLM-5.2 模型 | 1M |
+| `glm-5.3` | 最新 GLM-5.3 模型，适用于编程与智能体任务 | 1M |
+| `glm-5.3-flash` | 快速 GLM-5.3 Flash，适用于编程与智能体任务 | 1M |
 
 ```bash
-ante --provider antix --model claude-sonnet-4-6        # OAuth
-ante --provider antix-api-key --model claude-sonnet-4-6 # ANTIX_API_KEY
+ante --provider antix --model claude-sonnet-5         # OAuth
+ante --provider antix-api-key --model claude-sonnet-5 # ANTIX_API_KEY
 ```
 
 ### Local（本地模型） {#local}

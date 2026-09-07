@@ -275,7 +275,7 @@ ante doctor
 
 启动与真实运行相同的运行时 —— 加载合并目录、初始化守护进程会话并渲染首帧 TUI —— 随后打印各阶段耗时的就绪报告。用于确认 Ante 是否安装配置正确，或作为 CI 冒烟测试。
 
-无需 TTY 和 API 密钥：跳过 MCP 预热，直接基于目录进入就绪状态。报告包含五项检查 —— `home`（Ante 目录与输入历史可写性）、`catalog`（提供商/模型计数）、`project`（适用于当前目录的[项目设置](/configuration/preference#project-settings)文件，或提示未找到）、`session`（解析的提供商/模型）以及 `first frame`（无头渲染），最后输出总耗时。警告（例如未认证的提供商、被跳过的目录条目、`settings.json` 解析提示，或项目设置文件中被丢弃的键）列在表格下方。若任何硬性检查失败（如目录不可写），`doctor` 会返回非零退出码。
+无需 TTY 和 API 密钥：跳过 MCP 预热，直接基于目录进入就绪状态。报告包含五项检查 —— `home`（Ante 目录与输入历史可写性）、`project`（适用于当前目录的[项目设置](/configuration/preference#project-settings)文件，或提示未找到）、`catalog`（提供商/模型计数）、`session`（解析的提供商/模型）以及 `first frame`（无头渲染），最后输出总耗时。警告（例如未认证的提供商、被跳过的目录条目、`settings.json` 解析提示，或项目设置文件中被丢弃的键）列在表格下方。若任何硬性检查失败（如目录不可写），`doctor` 会返回非零退出码。
 
 ### 使用示例 {#ante-doctor-examples}
 

@@ -106,13 +106,13 @@ The built-in `bare` profile ships with Ante: the first `--profile bare` run seed
 
 ### Project settings
 
-A repository can carry its own settings. When a session starts, Ante walks up from the session's working directory, and the nearest ancestor containing `.ante/settings.json` supplies a **project layer** over your user settings:
+A repository can carry its own settings. When a session starts or resumes, Ante walks up from the session's working directory, and the nearest ancestor containing `.ante/settings.json` supplies a **project layer** over your user settings:
 
 ```json title=".ante/settings.json"
 {
   "append_system_prompt": "This repo targets Rust 1.88. Prefer `anyhow` over custom error types.",
   "exclude_skills": ["deploy-prod"],
-  "auto_compact": true,
+  "auto_memory": true,
   "permissions": {
     "deny": ["Bash(terraform apply *)"]
   }
@@ -134,13 +134,13 @@ Because `.ante/settings.json` is repository content, it can be written by anyone
 | `model` | A repository cannot redirect your traffic to a different model |
 | `provider` | A repository cannot redirect your traffic to a different provider |
 
-Everything else layers normally. `permissions.deny` and `permissions.ask` are *narrowing* rules, so a project can add them — that is the intended way to fence off destructive commands for a repository. `append_system_prompt`, `exclude_skills`, `model_effort`, `tools`, `auto_compact`, and the UI toggles all apply.
+The remaining session fields layer normally. A project may set `append_system_prompt`, `tools`, `auto_memory`, `skills`, `include_skills`, `exclude_skills`, `session_save`, `short_prompt`, `model_effort`, and the narrowing `permissions.ask` / `permissions.deny` rules. UI and device preferences such as `auto_compact`, `theme`, `channel`, status-line settings, and ambient features are ignored with a notice.
 
 #### Checking what applied
 
 `ante doctor` prints a `project` row showing the file it resolved (or that none was found) and any keys it dropped. [`ante rage`](/reference/cli-reference#ante-rage) includes the project file, redacted the same way as the user file, so a bug report carries the settings that were actually in effect.
 
-Project settings are read once, at session start. Editing the file mid-session has no effect until the next session.
+Project settings are read when a session starts or resumes. Editing the file mid-session has no effect until the next session boundary.
 
 ### Status line
 
@@ -388,4 +388,4 @@ Configuration is resolved in this order (later overrides earlier):
 1. Built-in defaults
 2. `~/.ante/settings.json` (or `~/.ante/<name>.settings.json` under `--profile`)
 3. The project's `.ante/settings.json`, for the keys it is [allowed to set](#project-settings)
-4. CLI flags (`--model`, `--provider`, etc.)
+4. CLI flags or protocol request fields (`--model`, `--provider`, etc.)

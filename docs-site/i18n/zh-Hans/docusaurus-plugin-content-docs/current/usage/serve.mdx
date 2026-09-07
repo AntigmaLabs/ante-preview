@@ -43,7 +43,7 @@ ante serve --sock /tmp/ante.sock
 ante serve --ws 127.0.0.1:8080
 ```
 
-`--ws` 参数在指定地址上启动 WebSocket 服务端。每个连接均拥有独立的守护进程实例。服务端持续循环接受新连接，直到收到 `Shutdown` 操作指令。
+`--ws` 参数在指定地址上启动 WebSocket 服务端。每个客户端在共享主机上拥有独立连接与会话。服务端持续循环接受新连接，直到收到 `Shutdown` 操作指令。
 
 :::note
 传输方式参数互斥 —— 只能在 `--stdio`、`--sock`、`--ws` 中选择其一。
@@ -55,12 +55,12 @@ ante serve --ws 127.0.0.1:8080
 
 ## 工作原理 {#how-it-works}
 
-1. 守护进程启动并等待 stdin 上的操作指令
+1. 主机启动并等待所选传输方式上的操作指令
 2. 发送 `StartSession` 操作，使用所选模型和提供商初始化会话
 3. 发送 `UserInput` 操作提交提示词
-4. 在 stdout 上接收流式事件 —— 思考增量、消息增量、工具调用、审批请求
+4. 在同一连接上接收流式事件 —— 思考增量、消息增量、工具调用、审批请求
 5. 响应 `TurnPause` 事件，发送 `ApprovalResponse` 以批准或拒绝工具调用
-6. 发送 `Shutdown`（或关闭 stdin）优雅停止守护进程
+6. 发送 `Shutdown`（或断开连接）以优雅关闭连接；在 stdio 和 WebSocket 模式下，`Shutdown` 还会结束服务进程
 
 完整消息目录与报文格式请参阅[通信协议参考手册](/reference/protocol-reference)。
 
